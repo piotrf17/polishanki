@@ -1,0 +1,34 @@
+// To regenerate python proto file:
+//   $ protoc --python_out=./ inflection.proto
+syntax = "proto2";
+
+message NounDeclension {
+  message Cases {
+    optional string nominative = 1;
+    optional string genitive = 2;
+    optional string dative = 3;
+    optional string accusative = 4;
+    optional string instrumental = 5;
+    optional string locative = 6;
+    optional string vocative = 7;
+  }
+
+  optional Cases singular = 1;
+  optional Cases plural = 2;
+}
+
+message Word {
+  optional string word = 1;
+
+  enum PartOfSpeech {
+    kUnknown = 0;
+    kNoun = 1;
+    kAdjective = 2;
+    kVerb = 3;
+  }
+  optional PartOfSpeech part_of_speech = 2;
+
+  oneof inflection {
+    NounDeclension noun = 3;
+  }
+}
