@@ -1,8 +1,15 @@
+"""Library to scrape inflected polish word forms from wiktionary.
+
+Typical usage is:
+  word = wiktionary_scraper.get_forms('drzwi')
+"""
+
+
 import logging
 import urllib.request
 from bs4 import BeautifulSoup
 
-from poldict import inflection_pb2
+import inflection_pb2
 
 HEADERS = {
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36',
@@ -12,7 +19,8 @@ HEADERS = {
 # from there on the next run. Useful for debugging and fixing scraping code.
 DEBUG=True
 
-def get_html(url):
+def _get_html(url):
+    """Scrapes `url` and returns a string with the html."""
     request = urllib.request.Request(url, headers=HEADERS)
     if DEBUG:
       logging.info('Scraper debug mode is enabled')
@@ -26,11 +34,12 @@ def get_html(url):
     return data
 
 
-def get_polish_inflection(soup):
+def _find_polish_inflection_table(soup):
     tables = soup.find_all('table', 'inflection-table')
     for table in tables:
         if table.find_all('th', title='mianownik (kto? co?)'):
             return table
+
 
 def add_noun_form(form, text, proto):
     if form == 'nominative':
@@ -47,6 +56,7 @@ def add_noun_form(form, text, proto):
         proto.locative = text
     elif form == 'vocative':
         proto.vocative = text
+
 
 def parse_inflection_table(table, noun_declension):
     rows = table.find_all('tr')
@@ -76,17 +86,30 @@ def parse_inflection_table(table, noun_declension):
                 add_noun_form(form, texts[1].span.string.strip(), plural)
         elif plural:
             add_noun_form(form, texts[0].span.string.strip(), plural)
-        
-def get_forms(word):
-    html = get_html('http://en.wiktionary.org/wiki/' + urllib.parse.quote(word))
+
+
+def get_forms_from_html(word, html):
     soup = BeautifulSoup(html, features="lxml")
-    inflection_table = get_polish_inflection(soup)
+    inflection_table = _find_polish_inflection_table(soup)
 
     proto = inflection_pb2.Word()
     proto.word = word
     parse_inflection_table(inflection_table, proto.noun)
 
-    print(proto)
+    return proto
+
+
+def get_forms(word):
+    """Scrapes wiktionary for all inflected forms of the given word.
+
+    Args:
+        word: a string word to scrape
+
+    Returns:
+        An inflection_pb2.Word containing all inflected forms.
+    """
+    html = _get_html('http://en.wiktionary.org/wiki/' + urllib.parse.quote(word))
+    return get_forms_from_html(word, html)
     
 
 if __name__ == "__main__":
