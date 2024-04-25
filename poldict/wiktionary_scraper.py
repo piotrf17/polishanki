@@ -19,17 +19,18 @@ HEADERS = {
 # from there on the next run. Useful for debugging and fixing scraping code.
 DEBUG=True
 
-def _get_html(url):
-    """Scrapes `url` and returns a string with the html."""
+def get_html(word, debug=False):
+    """Scrapes wiktionary for a word and returns a string with the html."""
+    url = 'http://en.wiktionary.org/wiki/' + urllib.parse.quote(word)
     request = urllib.request.Request(url, headers=HEADERS)
-    if DEBUG:
+    if debug:
       logging.info('Scraper debug mode is enabled')
       try:
         return open('/tmp/scraped_data.txt').read()
       except FileNotFoundError:
         logging.info('Saved scrape not found, fetching live.')
     data = urllib.request.urlopen(request).read()
-    if DEBUG:
+    if debug:
       open('/tmp/scraped_data.txt', 'w').write(data.decode('utf-8'))
     return data
 
@@ -108,10 +109,10 @@ def get_forms(word):
     Returns:
         An inflection_pb2.Word containing all inflected forms.
     """
-    html = _get_html('http://en.wiktionary.org/wiki/' + urllib.parse.quote(word))
+    html = get_html(word, DEBUG)
     return get_forms_from_html(word, html)
     
 
 if __name__ == "__main__":
 #    get_forms('gość')
-    get_forms('drzwi')
+    print(get_forms('drzwi'))
