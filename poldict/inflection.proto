@@ -17,6 +17,29 @@ message NounDeclension {
   optional Cases plural = 2;
 }
 
+message VerbConjugation {
+  message Tense {
+    // Ordered as singular_masculine, singular_feminine, singular_neuter,
+    // plural_virile, plural_nonvirile.
+    repeated string first = 1;
+    repeated string second = 2;
+    repeated string third = 3;
+    repeated string impersonal = 4;
+  }
+
+  optional Tense present = 1;
+  optional Tense past = 2;
+  optional Tense future = 3;
+  optional Tense conditional = 4;
+  optional Tense imperative = 5;
+
+  // Ordered the same as tenses.
+  repeated string active_adjectival_participle = 6;
+  repeated string contemporary_adverbial_participle = 7;
+  repeated string anterior_adverbial_participle = 8;
+  repeated string verbal_noun = 9;
+}
+
 message Word {
   optional string word = 1;
 
@@ -30,5 +53,6 @@ message Word {
 
   oneof inflection {
     NounDeclension noun = 3;
+    VerbConjugation verb = 4;
   }
 }
