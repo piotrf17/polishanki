@@ -90,5 +90,42 @@ class TestWiktionaryScraper(unittest.TestCase):
         self.assertEqual(word.verb.verbal_noun, ['bieganie'] * 5)
 
 
+    def test_perfect_verb(self):
+        word = get_forms('pobiec')
+        self.assertEqual(word.WhichOneof('inflection'), 'verb')
+        self.assertFalse(word.verb.HasField('present'))
+        self.assertEqual(word.verb.future.first, ['pobiegnę'] * 3 + ['pobiegniemy'] * 2)
+        self.assertEqual(word.verb.future.second, ['pobiegniesz'] * 3 + ['pobiegniecie'] * 2)
+        self.assertEqual(word.verb.future.third, ['pobiegnie'] * 3 + ['pobiegną'] * 2)
+        self.assertEqual(word.verb.future.impersonal, ['pobiegnie się'] * 5)
+        self.assertEqual(word.verb.past.first,
+                         ['pobiegłem', 'pobiegłam', 'pobiegłom', 'pobiegliśmy', 'pobiegłyśmy'])
+        self.assertEqual(word.verb.past.second,
+                         ['pobiegłeś', 'pobiegłaś', 'pobiegłoś', 'pobiegliście', 'pobiegłyście'])
+        self.assertEqual(word.verb.past.third,
+                         ['pobiegł', 'pobiegła', 'pobiegło', 'pobiegli', 'pobiegły'])
+        self.assertEqual(word.verb.past.impersonal, ['pobiegnięto'] * 5)
+        self.assertEqual(word.verb.conditional.first,
+                         ['pobiegłbym', 'pobiegłabym', 'pobiegłobym',
+                          'pobieglibyśmy', 'pobiegłybyśmy'])
+        self.assertEqual(word.verb.conditional.second,
+                         ['pobiegłbyś', 'pobiegłabyś', 'pobiegłobyś',
+                          'pobieglibyście', 'pobiegłybyście'])
+        self.assertEqual(word.verb.conditional.third,
+                         ['pobiegłby', 'pobiegłaby', 'pobiegłoby',
+                          'pobiegliby', 'pobiegłyby'])
+        self.assertEqual(word.verb.conditional.impersonal, ['pobiegnięto by'] * 5)
+        self.assertEqual(word.verb.imperative.first,
+                         ['niech pobiegnę'] * 3 + ['pobiegnijmy'] * 2)
+        self.assertEqual(word.verb.imperative.second,
+                         ['pobiegnij'] * 3 + ['pobiegnijcie'] * 2)
+        self.assertEqual(word.verb.imperative.third,
+                         ['niech pobiegnie'] * 3 + ['niech pobiegną'] * 2)
+        self.assertEqual(word.verb.active_adjectival_participle, [])
+        self.assertEqual(word.verb.contemporary_adverbial_participle, [])
+        self.assertEqual(word.verb.anterior_adverbial_participle, ['pobiegłszy'] * 5)
+        self.assertEqual(word.verb.verbal_noun, ['pobiegnięcie'] * 5)
+
+
 if __name__ == '__main__':
     unittest.main()

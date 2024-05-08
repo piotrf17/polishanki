@@ -128,7 +128,7 @@ def _parse_verb_inflection_table(table, verb_declension):
         elif title == 'czas przeszły':
             current_tense = verb_declension.past
             _parse_verb_person_forms(row, current_tense.first)
-        elif title == 'czas przyszły':
+        elif title.startswith('czas przyszły'):
             current_tense = verb_declension.future
             _parse_verb_person_forms(row, current_tense.first)
         elif title == 'tryb przypuszczający':
@@ -141,6 +141,8 @@ def _parse_verb_inflection_table(table, verb_declension):
             _parse_verb_person_forms(row, verb_declension.active_adjectival_participle)
         elif title == 'imiesłów przysłówkowy współczesny':
             _parse_verb_person_forms(row, verb_declension.contemporary_adverbial_participle)
+        elif title == 'imiesłów przysłówkowy uprzedni':
+            _parse_verb_person_forms(row, verb_declension.anterior_adverbial_participle)
         elif title == 'rzeczownik odczasownikowy':
             _parse_verb_person_forms(row, verb_declension.verbal_noun)            
         elif title.startswith('druga osoba'):
