@@ -5,32 +5,9 @@ import bz2
 from lxml import etree
 from pathlib import Path
 import re
-import sqlite3
 import sys
 
-
-class PageDb:
-    def __init__(self, db_path):
-        self.db_path = db_path
-        self.conn = sqlite3.connect(db_path)
-        self.conn.executescript(
-            """
-            DROP TABLE IF EXISTS pages;
-        
-            CREATE TABLE pages (
-                title TEXT,
-                text TEXT,
-                PRIMARY KEY(title)
-            );
-            """)
-
-    def close(self):
-        self.conn.close()
-
-    def save_page(self, title, text):
-        self.conn.execute('INSERT INTO pages (title, text) VALUES (?, ?)',
-                          (title, text))
-        self.conn.commit()
+from wiktionary_db import PageDb
 
 
 def extract_polish_text(text):
@@ -51,6 +28,7 @@ def dump_failed_text(title, text):
 def process_dump(dump_path, db_path):
     print(f"processing wiktionary dump at {dump_path}")
     db = PageDb(db_path)
+    db.create()
     with bz2.open(dump_path, 'rb') as f:
         namespace_str = "http://www.mediawiki.org/xml/export-0.10/"
         namespaces = {None: namespace_str}
