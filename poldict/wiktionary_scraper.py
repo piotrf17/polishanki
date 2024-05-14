@@ -6,6 +6,7 @@ Typical usage is:
 
 
 import logging
+import re
 import urllib.request
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
@@ -36,15 +37,96 @@ def get_html(word, debug=False):
     return data
 
 
-def _find_polish_inflection_table(soup):
-    tables = soup.find_all('table', 'inflection-table')
-    for table in tables:
-        if table.find_all('th', title='mianownik (kto? co?)'):
-            return 'noun', table
-        if table.find_all('th', title='liczba pojedyncza'):
-            return 'verb', table
+class ParseNode(object):
+    
+    def __init__(self, title, depth):
+        self.title = title
+        self.depth = depth
+        self.tags = []
+        self.children = []
+        self.parent = None
+        self.next = None
 
-    return 'unk', None
+    def find_all(self, title):
+        result = []
+        if self.title == title:
+            result.append(self)
+        for child in self.children:
+            result.extend(child.find_all(title))
+        return result
+
+    def find(self, title):
+        if self.title == title:
+            return self
+        for child in self.children:
+            result = child.find(title)
+            if result:
+                return result
+        return None
+
+    def print(self):
+        print(' ' * (self.depth - 2) + self.title)
+        for child in self.children:
+            child.print()
+
+    def find_tag(self, name, cl=None):
+        for tag in self.tags:
+            if tag.name == name:
+                if cl is not None and cl in tag.attrs['class']:
+                    return tag
+            result = tag.find(name, cl)
+            if result is not None:
+                return result
+        return None
+
+
+def _parse_html(soup):
+    current_tag = None
+    for lang_heading in soup.find_all('h2'):
+        if not lang_heading.span:
+            continue
+        if lang_heading.span.string.strip() == 'Polish':
+            current_tag = lang_heading
+            break
+    if not current_tag:
+        raise KeyError('no Polish definition')
+
+    root = ParseNode('Polish', 2)
+    node = root
+
+    while current_tag.next_sibling is not None:
+        current_tag = current_tag.next_sibling
+
+        # From the documentation, this shouldn't be possible, but it seems
+        # to happen in practice.
+        if current_tag.name is None:
+            continue
+
+        if len(current_tag.name) == 2 and current_tag.name[0] == 'h':
+            depth = int(current_tag.name[1])
+            
+            # Break if another language starts.
+            if depth == 2:
+                break
+
+            next_node = ParseNode(current_tag.span.string.strip(), depth)
+            if depth > node.depth:
+                node.children.append(next_node)
+                next_node.parent = node
+                node = next_node
+            else:
+                diff = node.depth - depth
+                while diff > 0:
+                    node = node.parent
+                    diff -= 1
+                next_node.parent = node.parent
+                next_node.parent.children.append(next_node)
+                node.next = next_node
+                node = next_node
+        else:
+            node.tags.append(current_tag)
+
+    return root
 
 
 def _add_noun_form(form, text, proto):
@@ -158,17 +240,34 @@ def _parse_verb_inflection_table(table, verb_declension):
 
 def get_forms_from_html(word, html):
     soup = BeautifulSoup(html, features="lxml")
-    table_type, inflection_table = _find_polish_inflection_table(soup)
-
-    if inflection_table == None:
-        raise KeyError('no inflection table found')
+    parse_tree = _parse_html(soup)
 
     proto = inflection_pb2.Word()
     proto.word = word
-    if table_type == 'noun':
-        _parse_noun_inflection_table(inflection_table, proto.noun)
-    elif table_type == 'verb':
-        _parse_verb_inflection_table(inflection_table, proto.verb)
+
+    nouns = parse_tree.find_all('Noun')
+    for noun in nouns:
+        meaning = inflection_pb2.Meaning()
+        meaning.part_of_speech = inflection_pb2.Meaning.kNoun
+        declension = noun.find('Declension')
+        if declension is None:
+            continue
+        inflection_table = declension.find_tag('table', 'inflection-table')
+        assert inflection_table is not None
+        _parse_noun_inflection_table(inflection_table, meaning.noun)
+        proto.meanings.append(meaning)
+
+    verbs = parse_tree.find_all('Verb')
+    for verb in verbs:
+        meaning = inflection_pb2.Meaning()
+        meaning.part_of_speech = inflection_pb2.Meaning.kVerb
+        conjugation = verb.find('Conjugation')
+        if conjugation is None:
+            continue
+        inflection_table = conjugation.find_tag('table', 'inflection-table')
+        assert inflection_table is not None
+        _parse_verb_inflection_table(inflection_table, meaning.verb)
+        proto.meanings.append(meaning)
 
     return proto
 

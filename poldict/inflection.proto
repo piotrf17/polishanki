@@ -40,9 +40,9 @@ message VerbConjugation {
   repeated string verbal_noun = 9;
 }
 
-message Word {
-  optional string word = 1;
-
+message Meaning {
+  optional string definition = 1;
+  
   enum PartOfSpeech {
     kUnknown = 0;
     kNoun = 1;
@@ -55,4 +55,9 @@ message Word {
     NounDeclension noun = 3;
     VerbConjugation verb = 4;
   }
+}
+
+message Word {
+  optional string word = 1;
+  repeated Meaning meanings = 2;
 }
