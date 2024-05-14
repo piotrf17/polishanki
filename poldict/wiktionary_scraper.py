@@ -129,7 +129,7 @@ def _parse_html(soup):
     return root
 
 
-def _add_noun_form(form, text, proto):
+def _add_cases_form(form, text, proto):
     if form == 'nominative':
         proto.nominative = text
     elif form == 'genitive':
@@ -144,6 +144,18 @@ def _add_noun_form(form, text, proto):
         proto.locative = text
     elif form == 'vocative':
         proto.vocative = text
+
+
+def _span_to_text(span):
+    form = []
+    for child in span.descendants:
+        if type(child) == NavigableString:
+            part = child.strip()
+            if part:
+                form.append(part)
+    form = ' '.join(form)
+    form.strip()
+    return form
 
 
 def _parse_noun_inflection_table(table, noun_declension):
@@ -169,11 +181,11 @@ def _parse_noun_inflection_table(table, noun_declension):
         form = row.th.string.strip()
         texts = row.find_all('td')
         if singular:
-            _add_noun_form(form, texts[0].span.string.strip(), singular)
+            _add_cases_form(form, texts[0].span.string.strip(), singular)
             if plural:
-                _add_noun_form(form, texts[1].span.string.strip(), plural)
+                _add_cases_form(form, texts[1].span.string.strip(), plural)
         elif plural:
-            _add_noun_form(form, texts[0].span.string.strip(), plural)
+            _add_cases_form(form, texts[0].span.string.strip(), plural)
 
 
 def _parse_verb_person_forms(row, person):
@@ -181,15 +193,9 @@ def _parse_verb_person_forms(row, person):
         num_entries = 1;
         if 'colspan' in entry.attrs:
             num_entries = int(entry['colspan'])
-        form = []
-        for child in entry.span.descendants:
-            if type(child) == NavigableString:
-                part = child.strip()
-                if part:
-                    form.append(part)
-        form = ' '.join(form)
+        form = _span_to_text(entry.span)
         for i in range(num_entries):
-            person.append(form.strip())
+            person.append(form)
 
 
 def _parse_verb_inflection_table(table, verb_declension):
@@ -238,6 +244,29 @@ def _parse_verb_inflection_table(table, verb_declension):
             _parse_verb_person_forms(row, current_tense.impersonal)
 
 
+def _parse_adjective_inflection_table(table, adjective_declension):
+    rows = table.find_all('tr')
+    if not rows:
+        raise KeyError('declension table empty')
+    cases = [adjective_declension.masculine_animate,
+             adjective_declension.masculine_inanimate,
+             adjective_declension.feminine,
+             adjective_declension.neuter,
+             adjective_declension.plural_virile,
+             adjective_declension.plural_nonvirile]
+    for row in rows[2:]:
+        form = row.th.string.strip()
+        cases_idx = 0
+        for entry in row.find_all('td'):
+            num_entries = 1;
+            if 'colspan' in entry.attrs:
+                num_entries = int(entry['colspan'])
+            text = _span_to_text(entry.span)
+            for i in range(num_entries):
+                _add_cases_form(form, text, cases[cases_idx])
+                cases_idx += 1
+
+
 def get_forms_from_html(word, html):
     soup = BeautifulSoup(html, features="lxml")
     parse_tree = _parse_html(soup)
@@ -267,6 +296,18 @@ def get_forms_from_html(word, html):
         inflection_table = conjugation.find_tag('table', 'inflection-table')
         assert inflection_table is not None
         _parse_verb_inflection_table(inflection_table, meaning.verb)
+        proto.meanings.append(meaning)
+
+    adjectives = parse_tree.find_all('Adjective')
+    for adjective in adjectives:
+        meaning = inflection_pb2.Meaning()
+        meaning.part_of_speech = inflection_pb2.Meaning.kAdjective
+        declension = adjective.find('Declension')
+        if declension is None:
+            continue
+        inflection_table = declension.find_tag('table', 'inflection-table')
+        assert inflection_table is not None
+        _parse_adjective_inflection_table(inflection_table, meaning.adjective)
         proto.meanings.append(meaning)
 
     return proto

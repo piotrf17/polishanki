@@ -9,27 +9,27 @@ def get_forms(word):
 
 class TestWiktionaryScraper(unittest.TestCase):
 
+    def _check_cases(self, cases, expected):
+        self.assertEqual(cases.nominative, expected[0])
+        self.assertEqual(cases.genitive, expected[1])
+        self.assertEqual(cases.dative, expected[2])
+        self.assertEqual(cases.accusative, expected[3])
+        self.assertEqual(cases.instrumental, expected[4])
+        self.assertEqual(cases.locative, expected[5])
+        self.assertEqual(cases.vocative, expected[6])
+    
+
     def test_noun(self):
         word = get_forms('gość')
         self.assertEqual(len(word.meanings), 1)
         m = word.meanings[0]
         self.assertEqual(m.WhichOneof('inflection'), 'noun')
-
-        self.assertEqual(m.noun.singular.nominative, 'gość')
-        self.assertEqual(m.noun.singular.genitive, "gościa")
-        self.assertEqual(m.noun.singular.dative, "gościowi")
-        self.assertEqual(m.noun.singular.accusative, "gościa")
-        self.assertEqual(m.noun.singular.instrumental, "gościem")
-        self.assertEqual(m.noun.singular.locative, "gościu")
-        self.assertEqual(m.noun.singular.vocative, "gościu")
-
-        self.assertEqual(m.noun.plural.nominative, "goście")
-        self.assertEqual(m.noun.plural.genitive, "gości")
-        self.assertEqual(m.noun.plural.dative, "gościom")
-        self.assertEqual(m.noun.plural.accusative, "gości")
-        self.assertEqual(m.noun.plural.instrumental, "gośćmi")
-        self.assertEqual(m.noun.plural.locative, "gościach")
-        self.assertEqual(m.noun.plural.vocative, "goście")
+        self._check_cases(
+            m.noun.singular,
+            ['gość', 'gościa', 'gościowi', 'gościa', 'gościem', 'gościu', 'gościu'])
+        self._check_cases(
+            m.noun.plural,
+            ['goście', 'gości', 'gościom', 'gości', 'gośćmi', 'gościach', 'goście'])
         
     
     def test_plural_only_noun(self):
@@ -38,14 +38,9 @@ class TestWiktionaryScraper(unittest.TestCase):
         m = word.meanings[0]
         self.assertEqual(m.WhichOneof('inflection'), 'noun')
         self.assertFalse(m.noun.HasField('singular'))
-                     
-        self.assertEqual(m.noun.plural.nominative, 'drzwi')
-        self.assertEqual(m.noun.plural.genitive, 'drzwi')
-        self.assertEqual(m.noun.plural.dative, 'drzwiom')
-        self.assertEqual(m.noun.plural.accusative, 'drzwi')
-        self.assertEqual(m.noun.plural.instrumental, 'drzwiami')
-        self.assertEqual(m.noun.plural.locative, 'drzwiach')
-        self.assertEqual(m.noun.plural.vocative, 'drzwi')
+        self._check_cases(
+            m.noun.plural,
+            ['drzwi', 'drzwi', 'drzwiom', 'drzwi', 'drzwiami', 'drzwiach', 'drzwi'])
 
 
     def test_imperfect_verb(self):
@@ -133,6 +128,41 @@ class TestWiktionaryScraper(unittest.TestCase):
         self.assertEqual(m.verb.contemporary_adverbial_participle, [])
         self.assertEqual(m.verb.anterior_adverbial_participle, ['pobiegłszy'] * 5)
         self.assertEqual(m.verb.verbal_noun, ['pobiegnięcie'] * 5)
+
+
+    def test_noun_and_adj(self):
+        word = get_forms('czerwony')
+        self.assertEqual(len(word.meanings), 2)
+
+        m = word.meanings[0]
+        self.assertEqual(m.WhichOneof('inflection'), 'noun')
+        self._check_cases(
+            m.noun.singular,
+            ['czerwony', 'czerwonego', 'czerwonemu', 'czerwonego', 'czerwonym', 'czerwonym', 'czerwony'])
+        self._check_cases(
+            m.noun.plural,
+            ['czerwone', 'czerwonych', 'czerwonym', 'czerwonych', 'czerwonymi', 'czerwonych', 'czerwone'])
+
+        m = word.meanings[1]
+        self.assertEqual(m.WhichOneof('inflection'), 'adjective')
+        self._check_cases(
+            m.adjective.masculine_animate,
+            ['czerwony', 'czerwonego', 'czerwonemu', 'czerwonego', 'czerwonym', 'czerwonym', ''])
+        self._check_cases(
+            m.adjective.masculine_inanimate,
+            ['czerwony', 'czerwonego', 'czerwonemu', 'czerwony', 'czerwonym', 'czerwonym', ''])
+        self._check_cases(
+            m.adjective.feminine,
+            ['czerwona', 'czerwonej', 'czerwonej', 'czerwoną', 'czerwoną', 'czerwonej', ''])
+        self._check_cases(
+            m.adjective.neuter,
+            ['czerwone', 'czerwonego', 'czerwonemu', 'czerwone', 'czerwonym', 'czerwonym', ''])
+        self._check_cases(
+            m.adjective.plural_virile,
+            ['czerwoni', 'czerwonych', 'czerwonym', 'czerwonych', 'czerwonymi', 'czerwonych', ''])
+        self._check_cases(
+            m.adjective.plural_nonvirile,
+            ['czerwone', 'czerwonych', 'czerwonym', 'czerwone', 'czerwonymi', 'czerwonych', ''])
 
 
 if __name__ == '__main__':

@@ -2,8 +2,7 @@
 //   $ protoc --python_out=./ inflection.proto
 syntax = "proto2";
 
-message NounDeclension {
-  message Cases {
+message Cases {
     optional string nominative = 1;
     optional string genitive = 2;
     optional string dative = 3;
@@ -13,8 +12,18 @@ message NounDeclension {
     optional string vocative = 7;
   }
 
+message NounDeclension {
   optional Cases singular = 1;
   optional Cases plural = 2;
+}
+
+message AdjectiveDeclension {
+  optional Cases masculine_animate = 1;
+  optional Cases masculine_inanimate = 2;
+  optional Cases feminine = 3;
+  optional Cases neuter = 4;
+  optional Cases plural_virile = 5;
+  optional Cases plural_nonvirile = 6;
 }
 
 message VerbConjugation {
@@ -54,6 +63,7 @@ message Meaning {
   oneof inflection {
     NounDeclension noun = 3;
     VerbConjugation verb = 4;
+    AdjectiveDeclension adjective = 5;
   }
 }
 
