@@ -1,0 +1,6 @@
+absl-py==2.1.0
+beautifulsoup4==4.12.3
+bs4==0.0.2
+lxml==5.2.1
+protobuf==5.26.1
+soupsieve==2.5

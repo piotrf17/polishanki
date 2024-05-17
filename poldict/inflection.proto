@@ -3,14 +3,14 @@
 syntax = "proto2";
 
 message Cases {
-    optional string nominative = 1;
-    optional string genitive = 2;
-    optional string dative = 3;
-    optional string accusative = 4;
-    optional string instrumental = 5;
-    optional string locative = 6;
-    optional string vocative = 7;
-  }
+  optional string nominative = 1;
+  optional string genitive = 2;
+  optional string dative = 3;
+  optional string accusative = 4;
+  optional string instrumental = 5;
+  optional string locative = 6;
+  optional string vocative = 7;
+}
 
 message NounDeclension {
   optional Cases singular = 1;

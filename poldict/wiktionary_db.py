@@ -4,7 +4,6 @@ Combines a sqlite database to cache scrapes, with a wiktionary
 scraper and parser.
 """
 
-
 import sqlite3
 import sys
 import time
@@ -49,8 +48,8 @@ class WiktionaryDb:
         """
         if not force_rescrape:
             row = self.conn.execute(
-                'SELECT page, scrape_time FROM pages WHERE word=?',
-                (word,)).fetchone()
+                "SELECT page, scrape_time FROM pages WHERE word=?", (word,)
+            ).fetchone()
 
             if row is not None:
                 compressed_page = row[0]
@@ -66,12 +65,10 @@ class WiktionaryDb:
 
         # Save in the sqlite DB.
         self.conn.execute(
-            'INSERT INTO pages (word, page, scrape_time) VALUES (?, ?, ?)',
-            (word, compressed_page, scrape_time))
+            "INSERT INTO pages (word, page, scrape_time) VALUES (?, ?, ?)",
+            (word, compressed_page, scrape_time),
+        )
         self.conn.commit()
 
         proto = wiktionary_scraper.get_forms_from_html(word, page)
         return proto, scrape_time
-
-    
-        
