@@ -1,4 +1,6 @@
-==Development==
+# Polish Anki Card Creator
+
+## Development
 
 To run the client, run:
 
