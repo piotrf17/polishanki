@@ -9,7 +9,7 @@ import sys
 import time
 import zlib
 
-import wiktionary_scraper
+from poldict import wiktionary_scraper
 
 
 SCHEMA = """

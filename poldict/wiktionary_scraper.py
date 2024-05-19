@@ -10,7 +10,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
-import inflection_pb2
+from poldict import inflection_pb2
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",

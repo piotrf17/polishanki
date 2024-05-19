@@ -1,7 +1,20 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, g
 from flask_cors import cross_origin
+from google.protobuf.json_format import MessageToDict
+
+from poldict.wiktionary_db import WiktionaryDb
 
 app = Flask(__name__)
+
+WIKTIONARY_DB = "data/wiktionary.sqlite"
+
+
+# I'm running this locally as an app, sof or expediency we store
+# global variables instead of dealing with application context or sessions.
+def get_wiktionary_db():
+    if "wiktionary_db" not in g:
+        g.wiktionary_db = WiktionaryDb(WIKTIONARY_DB)
+    return g.wiktionary_db
 
 
 @app.route("/")
@@ -10,14 +23,8 @@ def index():
 
 
 @app.route("/api/words/<word>")
-@cross_origin()
+@cross_origin(origins="http://localhost:5173")
 def words(word):
-    data = {}
-
-    data["word"] = word
-    data["inflection"] = {
-        "nominative": "nom",
-        "genitive": "gen",
-    }
-
+    word_data, scrape_time = get_wiktionary_db().lookup(word)
+    data = {"word_data": MessageToDict(word_data), "scrape_time": scrape_time}
     return jsonify(data)

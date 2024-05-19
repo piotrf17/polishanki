@@ -1,10 +1,12 @@
+import os.path
 import unittest
 
-import wiktionary_scraper
+from poldict import wiktionary_scraper
 
 
 def get_forms(word):
-    with open("testdata/" + word + ".html") as f:
+    filename = os.path.join(os.path.dirname(__file__), f"testdata/{word}.html")
+    with open(filename) as f:
         html = f.read()
     return wiktionary_scraper.get_forms_from_html(word, html)
 
