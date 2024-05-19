@@ -9,7 +9,7 @@ app = Flask(__name__)
 WIKTIONARY_DB = "data/wiktionary.sqlite"
 
 
-# I'm running this locally as an app, sof or expediency we store
+# I'm running this locally as an app, so for expediency we store
 # global variables instead of dealing with application context or sessions.
 def get_wiktionary_db():
     if "wiktionary_db" not in g:
