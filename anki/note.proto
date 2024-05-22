@@ -1,0 +1,39 @@
+// Notes in the Polish Anki editor.
+// These could also be called "cards", because they aren't bi-directional.
+
+// To regenerate python proto file:
+//   $ protoc --python_out=./ note.proto
+
+syntax = "proto2";
+
+message Note {
+  // Unique identifier for the note, used to dedup in Anki.
+  optional int64 id = 1;
+
+  // Front of the card.
+  optional string front = 2;
+
+  // Hint to the answer.
+  optional string hint = 3;
+
+  // Word this card is training.
+  optional string word = 4;
+
+  // Back of the card.
+  optional string back = 5;
+
+  // Extra info to explain the answer.
+  optional string extra_info = 6;
+
+  // ==============================================
+  // Various stats, not exported to Anki.
+
+  // Unix timestamp (in seconds) when the note was created.
+  optional double created_ts = 7;
+
+  // Unix timestamp (in seconds) when the note was last edited.
+  optional double last_edited_ts = 8;
+
+  // Unix timestamp (in seconds) when the note was last exported.
+  optional double last_exported_ts = 9;
+}
