@@ -53,7 +53,7 @@ class NoteDb(object):
         """
         assert not note.HasField("id")
         note.id = random.randint(0, (1 << 63) - 1)
-        insert_note_with_id(note)
+        self.insert_note_with_id(note)
 
     def update_note(self, note):
         """Update a note in the database.
