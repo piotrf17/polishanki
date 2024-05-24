@@ -17,7 +17,7 @@ const App = () => {
       </div>
       <Routes>
         <Route path="/" element={<WordList />} />
-        <Route path="/:page" element={<WordList />} />
+        <Route path="/:page/:query?" element={<WordList />} />
         <Route path="/words/:word" element={<Word />} />
       </Routes>
     </Router>
