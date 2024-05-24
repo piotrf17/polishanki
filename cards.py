@@ -2,11 +2,13 @@ from flask import Flask, jsonify, g
 from flask_cors import cross_origin
 from google.protobuf.json_format import MessageToDict
 
+from anki.note_db import NoteDb
 from poldict.wiktionary_db import WiktionaryDb
 
 app = Flask(__name__)
 
 WIKTIONARY_DB = "data/wiktionary.sqlite"
+ANKI_DB = "data/anki.sqlite"
 WORDLIST = "data/frequency_list_base_50k.txt"
 NODE_FRONTEND = "http://localhost:5173"
 
@@ -17,6 +19,12 @@ def get_wiktionary_db():
     if "wiktionary_db" not in g:
         g.wiktionary_db = WiktionaryDb(WIKTIONARY_DB)
     return g.wiktionary_db
+
+
+def get_note_db():
+    if "note_db" not in g:
+        g.note_db = NoteDb(ANKI_DB)
+    return g.note_db
 
 
 def get_wordlist():
@@ -44,3 +52,10 @@ def words(word):
 def wordlist():
     words = get_wordlist()
     return jsonify(words)
+
+
+@app.route("/api/notes/<word>")
+@cross_origin(origins=NODE_FRONTEND)
+def notes(word):
+    protos = get_note_db().find_notes(word)
+    return jsonify([MessageToDict(proto) for proto in protos])

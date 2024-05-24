@@ -2,11 +2,14 @@ import random
 import sqlite3
 import time
 
+from anki import note_pb2
+
 SCHEMA = """
 DROP TABLE IF EXISTS notes;
 
 CREATE TABLE notes (
   id INTEGER PRIMARY KEY,
+  word TEXT NOT NULL,
   note TEXT NOT NULL
 );
 """
@@ -31,13 +34,15 @@ class NoteDb(object):
         assert note.HasField("id")
         assert note.HasField("front")
         assert note.HasField("back")
+        assert note.HasField("word")
 
         if not note.HasField("created_ts"):
             note.created_ts = time.time()
 
         raw_note = note.SerializeToString()
         self.conn.execute(
-            "INSERT INTO notes (id, note) VALUES (?, ?)", (note.id, raw_note)
+            "INSERT INTO notes (id, word, note) VALUES (?, ?, ?)",
+            (note.id, note.word, raw_note),
         )
         self.conn.commit()
 
@@ -59,7 +64,8 @@ class NoteDb(object):
         """Update a note in the database.
 
         Replaces the contents of the data for note.id with 'note'. If no note
-        exists with that id, raises a KeyError.
+        exists with that id, raises a KeyError. Note that this assumes that note.word
+        does not change, however it does not verify this.
         """
         assert note.HasField("id")
         assert note.HasField("created_ts")
@@ -84,3 +90,7 @@ class NoteDb(object):
         """Delete a note from the database."""
         self.conn.execute("DELETE FROM notes WHERE id = ?", (note_id,))
         self.conn.commit()
+
+    def find_notes(self, word):
+        result = self.conn.execute("SELECT note FROM notes WHERE word = ?", (word,))
+        return [note_pb2.Note.FromString(row[0]) for row in result]
