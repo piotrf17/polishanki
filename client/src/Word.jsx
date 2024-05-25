@@ -27,6 +27,9 @@ const Word = () => {
   return (
     <>
       <h1>{word}</h1>
+      <a href={"https://en.wiktionary.org/wiki/" + word + "#Polish"}>
+        [wiktionary]
+      </a>
       {wordData && (
         <div>
           {wordData.meanings.map((meaning, index) => (
@@ -41,7 +44,7 @@ const Word = () => {
         </div>
       )}
       <div>
-        <h2>Notes</h2>
+        <h2>Notes ({notes.length})</h2>
         {notes.map((note) => (
           <Note key={note.id} data={note} />
         ))}

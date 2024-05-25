@@ -1,0 +1,34 @@
+div.note {
+  background-color: rgb(228 240 245);
+  margin: 10px 0px 10px 20px;
+  width: 800px;
+  border: 1px solid;
+}
+
+div.note[data-editing="true"] {
+  background-color: rgb(241, 215, 142);
+}
+
+.note table {
+  table-layout: fixed;
+}
+
+.note th {
+  width: 80px;
+  text-align: left;
+  padding: 0px 10px;
+}
+
+.note table input {
+  width: 600px;
+}
+
+.note div.buttons {
+  text-align: center;
+}
+
+.note span.timeInfo {
+  display: table;
+  margin: 0 auto;
+  font-size: 0.75em;
+}
