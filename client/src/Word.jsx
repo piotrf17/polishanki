@@ -12,17 +12,23 @@ const Word = () => {
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/words/" + word).then((response) => {
+    axios.get(`http://localhost:5000/api/words/${word}`).then((response) => {
       setScrapeTime(response.data.scrape_time);
       setWordData(response.data.word_data);
     });
   }, []);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/notes/" + word).then((response) => {
-      setNotes(response.data);
-    });
+    axios
+      .get(`http://localhost:5000/api/notes_for_word/${word}`)
+      .then((response) => {
+        setNotes(response.data);
+      });
   }, []);
+
+  const updateNote = (changedNote) => {
+    setNotes(notes.map((n) => (n.id == changedNote.id ? changedNote : n)));
+  };
 
   return (
     <>
@@ -46,7 +52,7 @@ const Word = () => {
       <div>
         <h2>Notes ({notes.length})</h2>
         {notes.map((note) => (
-          <Note key={note.id} data={note} />
+          <Note key={note.id} data={note} updateData={updateNote} />
         ))}
       </div>
     </>

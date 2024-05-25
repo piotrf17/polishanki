@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, g
+from flask import Flask, jsonify, g, request, current_app, make_response
 from flask_cors import cross_origin
-from google.protobuf.json_format import MessageToDict
+from google.protobuf import json_format
 
 from anki.note_db import NoteDb
+from anki import note_pb2
 from poldict.wiktionary_db import WiktionaryDb
 
 app = Flask(__name__)
@@ -34,6 +35,12 @@ def get_wordlist():
     return g.words
 
 
+def error_response(error_text):
+    current_app.logger.error(error_text)
+    data = {"error": error_text}
+    return make_response(jsonify(data), 400)
+
+
 @app.route("/")
 def index():
     return "<h1>Polish Card Creator</h1>"
@@ -43,7 +50,10 @@ def index():
 @cross_origin(origins=NODE_FRONTEND)
 def words(word):
     word_data, scrape_time = get_wiktionary_db().lookup(word)
-    data = {"word_data": MessageToDict(word_data), "scrape_time": scrape_time}
+    data = {
+        "word_data": json_format.MessageToDict(word_data),
+        "scrape_time": scrape_time,
+    }
     return jsonify(data)
 
 
@@ -54,8 +64,24 @@ def wordlist():
     return jsonify(words)
 
 
-@app.route("/api/notes/<word>")
+@app.route("/api/notes_for_word/<word>")
 @cross_origin(origins=NODE_FRONTEND)
-def notes(word):
+def notes_for_word(word):
     protos = get_note_db().find_notes(word)
-    return jsonify([MessageToDict(proto) for proto in protos])
+    return jsonify([json_format.MessageToDict(proto) for proto in protos])
+
+
+@app.route("/api/notes/<note_id>", methods=("PUT", "DELETE"))
+@cross_origin(origins=NODE_FRONTEND)
+def notes(note_id):
+    if request.method == "PUT":
+        data = request.get_json()
+        current_app.logger.info("PUT note: ", data)
+        if data["id"] != note_id:
+            return error_response("request id does not match data")
+        note = json_format.ParseDict(data, note_pb2.Note())
+        get_note_db().update_note(note)
+    elif request.method == "DELETE":
+        get_note_db().delete_note(note_id)
+
+    return make_response(jsonify({}), 200)
