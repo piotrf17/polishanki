@@ -7,9 +7,7 @@ const timestampToDate = (unixSeconds) => {
   return date.toLocaleString();
 };
 
-const Note = ({ data, updateData }) => {
-  const [editing, setEditing] = useState(false);
-
+const Note = ({ data, editing, updateData, setEditing, handleDelete }) => {
   const handleDoubleClick = () => {
     // If already editing, do nothing.
     if (editing) return;
@@ -42,11 +40,7 @@ const Note = ({ data, updateData }) => {
       setEditing(false);
     }
 
-    const url = `http://localhost:5000/api/notes/${data.id}`;
-    axios.put(url, changedData).then((response) => {
-      updateData(changedData);
-      setEditing(false);
-    });
+    updateData(changedData);
   };
 
   const handleCancel = () => {
@@ -117,6 +111,10 @@ const Note = ({ data, updateData }) => {
               &nbsp;&nbsp;&nbsp;
               <button type="button" onClick={handleCancel}>
                 Cancel
+              </button>
+              &nbsp;&nbsp;&nbsp;
+              <button type="button" onClick={handleDelete}>
+                Delete
               </button>
             </div>
             <span className="timeInfo">

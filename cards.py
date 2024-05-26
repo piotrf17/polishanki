@@ -71,12 +71,24 @@ def notes_for_word(word):
     return jsonify([json_format.MessageToDict(proto) for proto in protos])
 
 
+@app.route("/api/notes", methods=("POST",))
+@cross_origin(origins=NODE_FRONTEND)
+def notes():
+    data = request.get_json()
+    current_app.logger.info(f"POST new note: {data}")
+    note = json_format.ParseDict(data, note_pb2.Note())
+    note_id = get_note_db().insert_note(note)
+    response = {}
+    response["id"] = str(note_id)
+    return make_response(jsonify(response), 200)
+
+
 @app.route("/api/notes/<note_id>", methods=("PUT", "DELETE"))
 @cross_origin(origins=NODE_FRONTEND)
-def notes(note_id):
+def single_note(note_id):
     if request.method == "PUT":
         data = request.get_json()
-        current_app.logger.info("PUT note: ", data)
+        current_app.logger.info(f"PUT note: {data}")
         if data["id"] != note_id:
             return error_response("request id does not match data")
         note = json_format.ParseDict(data, note_pb2.Note())
