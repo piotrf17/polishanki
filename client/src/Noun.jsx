@@ -5,21 +5,36 @@ const Noun = ({ word, nounDeclension }) => {
     return <Link to={`/words/${word}/${form}`}>{form}</Link>;
   };
 
+  const hasSingular = "singular" in nounDeclension;
+  const hasPlural = "plural" in nounDeclension;
+
+  const declensionRow = (nounCase) => {
+    return (
+      <tr>
+        <th>{nounCase}</th>
+        {hasSingular && <td>{formLink(nounDeclension.singular[nounCase])}</td>}
+        {hasPlural && <td>{formLink(nounDeclension.plural[nounCase])}</td>}
+      </tr>
+    );
+  };
+
   return (
     <>
       <h2>Noun</h2>
-      <table>
+      <table className="inflection-table">
         <tbody>
-          <tr>
+          <tr className="header">
             <th></th>
-            <th>singular</th>
-            <th>plural</th>
+            {hasSingular && <th>singular</th>}
+            {hasPlural && <th>plural</th>}
           </tr>
-          <tr>
-            <th>nominative</th>
-            <td>{formLink(nounDeclension.singular.nominative)}</td>
-            <td>{formLink(nounDeclension.plural.nominative)}</td>
-          </tr>
+          {declensionRow("nominative")}
+          {declensionRow("genitive")}
+          {declensionRow("dative")}
+          {declensionRow("accusative")}
+          {declensionRow("instrumental")}
+          {declensionRow("locative")}
+          {declensionRow("vocative")}
         </tbody>
       </table>
     </>

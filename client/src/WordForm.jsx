@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import NoteList from "./NoteList";
 
@@ -26,7 +26,7 @@ const WordForm = () => {
   return (
     <>
       <h1>
-        {word} -- {form}
+        <Link to={`/words/${word}`}>{word}</Link> -- {form}
       </h1>
       <h2>Examples</h2>
       <NoteList word={word} noteFilter={filterToForm} />
