@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, redirect, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const getUrl = (page, query) => {

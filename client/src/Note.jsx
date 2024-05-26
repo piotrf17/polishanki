@@ -1,6 +1,3 @@
-import { useState } from "react";
-import axios from "axios";
-
 const timestampToDate = (unixSeconds) => {
   if (typeof unixSeconds == "undefined") return " never";
   const date = new Date(unixSeconds * 1000);
