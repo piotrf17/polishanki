@@ -29,6 +29,11 @@ const WordForm = () => {
         <Link to={`/words/${word}`}>{word}</Link> -- {form}
       </h1>
       <h2>Examples</h2>
+      <a
+        href={"https://context.reverso.net/translation/polish-english/" + form}
+      >
+        [reverso]
+      </a>
       <NoteList word={word} noteFilter={filterToForm} />
     </>
   );

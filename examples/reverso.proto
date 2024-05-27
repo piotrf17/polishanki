@@ -1,0 +1,25 @@
+// Polish example sentences from Reverso.
+
+// To regenerate python proto file:
+//   $ protoc --python_out=./ reverso.proto
+
+syntax = "proto2";
+
+message Example {
+  // An example sentence in polish.
+  optional string polish = 1;
+
+  // Optional english translation.
+  optional string english = 2;
+
+  // Source corpus for the example.
+  optional string source = 3;
+}
+
+message Examples {
+  // All example sentences scraped so far.
+  repeated Example examples = 1;
+
+  // Latest reverso page num that was scraped.
+  optional int32 latest_scraped_page = 2;
+}
