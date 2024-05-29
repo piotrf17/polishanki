@@ -29,7 +29,7 @@ const WordForm = () => {
       <h1>
         <Link to={`/words/${word}`}>{word}</Link> -- {form}
       </h1>
-      <ExampleList word={word} />
+      <ExampleList word={form} />
       <NoteList word={word} noteFilter={filterToForm} />
     </>
   );

@@ -112,3 +112,9 @@ def single_note(note_id):
 @cross_origin(origins=NODE_FRONTEND)
 def examples(word):
     return jsonify(json_format.MessageToDict(get_reverso_db().examples(word)))
+
+
+@app.route("/api/examples/<word>/scrape_next_page")
+@cross_origin(origins=NODE_FRONTEND)
+def scrape_next_page(word):
+    return jsonify(json_format.MessageToDict(get_reverso_db().scrape_next_page(word)))

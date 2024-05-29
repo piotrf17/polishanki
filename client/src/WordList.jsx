@@ -73,7 +73,7 @@ const WordList = () => {
       </div>
       <div>
         <ul>
-          {words.slice(0, 100).map((word) => (
+          {words.map((word) => (
             <li key={word}>
               <Link to={"/words/" + word}>{word}</Link>
             </li>
