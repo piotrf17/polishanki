@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 
+import ExampleList from "./ExampleList";
 import NoteList from "./NoteList";
 
 const wordsInBlank = (front, back) => {
@@ -28,12 +29,7 @@ const WordForm = () => {
       <h1>
         <Link to={`/words/${word}`}>{word}</Link> -- {form}
       </h1>
-      <h2>Examples</h2>
-      <a
-        href={"https://context.reverso.net/translation/polish-english/" + form}
-      >
-        [reverso]
-      </a>
+      <ExampleList word={word} />
       <NoteList word={word} noteFilter={filterToForm} />
     </>
   );

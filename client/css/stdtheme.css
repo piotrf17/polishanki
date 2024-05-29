@@ -62,3 +62,20 @@ table.inflection-table td {
 table.inflection-table td a {
   text-decoration: none;
 }
+
+/**** Examples ****/
+
+div.example {
+  background-color: rgb(222, 236, 216);
+  margin: 10px 0px 10px 20px;
+  width: 800px;
+  border: 1px solid;
+}
+
+div.exampleSelected {
+  background-color: rgb(235, 240, 232);
+}
+
+div.example p {
+  margin: 10px 20px;
+}

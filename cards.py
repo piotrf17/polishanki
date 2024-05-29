@@ -4,12 +4,15 @@ from google.protobuf import json_format
 
 from anki.note_db import NoteDb
 from anki import note_pb2
+from examples.reverso_db import ReversoDb
 from poldict.wiktionary_db import WiktionaryDb
+
 
 app = Flask(__name__)
 
 WIKTIONARY_DB = "data/wiktionary.sqlite"
 ANKI_DB = "data/anki.sqlite"
+REVERSO_DB = "data/reverso.sqlite"
 WORDLIST = "data/frequency_list_base_50k.txt"
 NODE_FRONTEND = "http://localhost:5173"
 
@@ -26,6 +29,12 @@ def get_note_db():
     if "note_db" not in g:
         g.note_db = NoteDb(ANKI_DB)
     return g.note_db
+
+
+def get_reverso_db():
+    if "reverso_db" not in g:
+        g.reverso_db = ReversoDb(REVERSO_DB)
+    return g.reverso_db
 
 
 def get_wordlist():
@@ -97,3 +106,9 @@ def single_note(note_id):
         get_note_db().delete_note(note_id)
 
     return make_response(jsonify({}), 200)
+
+
+@app.route("/api/examples/<word>")
+@cross_origin(origins=NODE_FRONTEND)
+def examples(word):
+    return jsonify(json_format.MessageToDict(get_reverso_db().examples(word)))
