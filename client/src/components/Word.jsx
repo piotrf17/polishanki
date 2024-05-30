@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import NoteList from "./NoteList";
-import Noun from "./Noun";
 import NoteService from "../services/notes";
+import Noun from "./Noun";
+import Verb from "./Verb";
 
 const Word = () => {
   const word = useParams().word;
@@ -32,7 +33,9 @@ const Word = () => {
               {meaning.partOfSpeech == "kNoun" && (
                 <Noun word={word} nounDeclension={meaning.noun} />
               )}
-              {meaning.partOfSpeech == "kVerb" && <h2>Verb</h2>}
+              {meaning.partOfSpeech == "kVerb" && (
+                <Verb word={word} verbConjugation={meaning.verb} />
+              )}
               {meaning.partOfSpeech == "kAdjective" && <h2>Adjective</h2>}
             </div>
           ))}

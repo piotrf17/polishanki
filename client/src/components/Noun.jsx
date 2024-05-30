@@ -21,7 +21,7 @@ const Noun = ({ word, nounDeclension }) => {
   return (
     <>
       <h2>Noun</h2>
-      <table className="inflection-table">
+      <table className="noun-inflection-table">
         <tbody>
           <tr className="header">
             <th></th>

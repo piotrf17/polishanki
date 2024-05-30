@@ -35,31 +35,63 @@ div.note[data-editing="true"] {
   font-size: 0.75em;
 }
 
-/**** Inflection Table ****/
+/**** Noun Inflection Table ****/
 
-table.inflection-table {
+table.noun-inflection-table {
   background-color: #f9f9f9;
   text-align: center;
   width: 29em;
 }
 
-table.inflection-table tr th:first-child {
+table.noun-inflection-table tr th:first-child {
   width: 8em;
 }
 
-table.inflection-table tr.header th {
+table.noun-inflection-table tr.header th {
   background-color: #d9ebff;
 }
 
-table.inflection-table tr {
+table.noun-inflection-table tr {
   background-color: #eff7ff;
 }
 
-table.inflection-table td {
+table.noun-inflection-table td {
   background-color: #f9f9f9;
 }
 
-table.inflection-table td a {
+table.noun-inflection-table td a {
+  text-decoration: none;
+}
+
+/**** Verb Inflection Table ****/
+
+table.verb-inflection-table {
+  background-color: #f9f9f9;
+  text-align: center;
+  width: 60em;
+  border: 1px solid #a2a9b1;
+  border-collapse: collapse;
+}
+
+table.verb-inflection-table td,
+table.verb-inflection-table th {
+  border: 1px solid #a2a9b1;
+  border-collapse: collapse;
+}
+
+table.verb-inflection-table tr.header th {
+  background-color: #d9ebff;
+}
+
+table.verb-inflection-table tr {
+  background-color: #eff7ff;
+}
+
+table.verb-inflection-table td {
+  background-color: #f9f9f9;
+}
+
+table.verb-inflection-table td a {
   text-decoration: none;
 }
 
