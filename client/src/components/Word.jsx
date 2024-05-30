@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
+import Adjective from "./Adjective";
 import NoteList from "./NoteList";
 import NoteService from "../services/notes";
 import Noun from "./Noun";
@@ -36,7 +37,12 @@ const Word = () => {
               {meaning.partOfSpeech == "kVerb" && (
                 <Verb word={word} verbConjugation={meaning.verb} />
               )}
-              {meaning.partOfSpeech == "kAdjective" && <h2>Adjective</h2>}
+              {meaning.partOfSpeech == "kAdjective" && (
+                <Adjective
+                  word={word}
+                  adjectiveDeclension={meaning.adjective}
+                />
+              )}
             </div>
           ))}
         </div>
