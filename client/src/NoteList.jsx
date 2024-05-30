@@ -2,19 +2,15 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 import Note from "./Note";
-import NoteService from "./services/notes";
 
-const NoteList = ({ word, noteFilter = (n) => true }) => {
-  const [notes, setNotes] = useState([]);
-  const noteService = new NoteService(notes, setNotes, noteFilter);
-
+const NoteList = ({ word, noteService }) => {
   useEffect(() => {
     noteService.getNotes(word);
   }, []);
 
   return (
     <div>
-      <h2>Notes ({notes.length})</h2>
+      <h2>Notes ({noteService.notes.length})</h2>
       <div>
         <button
           onClick={() => {
@@ -24,7 +20,7 @@ const NoteList = ({ word, noteFilter = (n) => true }) => {
           Add a new note
         </button>
       </div>
-      {notes.map((n) => (
+      {noteService.notes.map((n) => (
         <Note
           key={n.data.id}
           data={n.data}

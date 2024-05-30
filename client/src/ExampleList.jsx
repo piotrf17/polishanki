@@ -3,7 +3,7 @@ import axios from "axios";
 
 import Example from "./Example";
 
-const ExampleList = ({ word }) => {
+const ExampleList = ({ word, addExample }) => {
   const [examples, setExamples] = useState([]);
   const [page, setPage] = useState(0);
   const EXAMPLES_PER_PAGE = 20;
@@ -63,7 +63,10 @@ const ExampleList = ({ word }) => {
         </a>
       </div>
       {examples.slice(firstExampleIx, lastExampleIx).map((example, ix) => (
-        <Example key={ix} word={word} example={example} />
+        <div key={ix} className="example-holder">
+          <Example word={word} example={example} />
+          <button onClick={addExample.bind(null, example)}>Add</button>
+        </div>
       ))}
     </>
   );

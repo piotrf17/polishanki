@@ -65,11 +65,16 @@ table.inflection-table td a {
 
 /**** Examples ****/
 
+div.example-holder button {
+  margin: 0px 20px;
+}
+
 div.example {
   background-color: rgb(222, 236, 216);
   margin: 10px 0px 10px 20px;
   width: 800px;
   border: 1px solid;
+  display: inline-block;
 }
 
 div.exampleSelected {
@@ -78,4 +83,8 @@ div.exampleSelected {
 
 div.example p {
   margin: 10px 20px;
+}
+
+div.example p.source {
+  font-size: 0.75em;
 }

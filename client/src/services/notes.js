@@ -1,9 +1,11 @@
+import { useState } from "react";
 import axios from "axios";
 
 const baseUrl = "http://localhost:5000/api";
 
 class NoteService {
-  constructor(notes, setNotes, noteFilter = (n) => true) {
+  constructor(noteFilter = (n) => true) {
+    const [notes, setNotes] = useState([]);
     this.notes = notes;
     this.setNotes = setNotes;
     this.noteFilter = noteFilter;

@@ -4,11 +4,13 @@ import axios from "axios";
 
 import NoteList from "./NoteList";
 import Noun from "./Noun";
+import NoteService from "./services/notes";
 
 const Word = () => {
   const word = useParams().word;
   const [scrapeTime, setScrapeTime] = useState(0.0);
   const [wordData, setWordData] = useState(null);
+  const noteService = new NoteService();
 
   useEffect(() => {
     axios.get(`http://localhost:5000/api/words/${word}`).then((response) => {
@@ -36,7 +38,7 @@ const Word = () => {
           ))}
         </div>
       )}
-      <NoteList word={word} />
+      <NoteList word={word} noteService={noteService} />
     </>
   );
 };

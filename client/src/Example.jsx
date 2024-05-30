@@ -23,7 +23,11 @@ const Example = ({ word, example }) => {
     >
       <p>{boldWord(word, example.polish)}</p>
       {selected && <p>{example.english}</p>}
-      {selected && <p>Source: {example.source}</p>}
+      {selected && (
+        <p className="source">
+          <b>Source:</b> {example.source}
+        </p>
+      )}
     </div>
   );
 };

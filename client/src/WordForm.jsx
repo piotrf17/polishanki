@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 
 import ExampleList from "./ExampleList";
 import NoteList from "./NoteList";
+import NoteService from "./services/notes";
 
 const wordsInBlank = (front, back) => {
   let startIx = 0;
@@ -18,10 +19,18 @@ const wordsInBlank = (front, back) => {
 
 const WordForm = () => {
   const { word: word, form: form } = useParams();
-
   const filterToForm = (n) => {
     const words = wordsInBlank(n.data.front, n.data.back);
     return words.includes(form);
+  };
+  const noteService = new NoteService(filterToForm);
+
+  const addExample = (example) => {
+    const wordData = {
+      front: example.polish,
+      back: example.polish,
+    };
+    noteService.addNote(word, wordData);
   };
 
   return (
@@ -29,8 +38,8 @@ const WordForm = () => {
       <h1>
         <Link to={`/words/${word}`}>{word}</Link> -- {form}
       </h1>
-      <ExampleList word={form} />
-      <NoteList word={word} noteFilter={filterToForm} />
+      <ExampleList word={form} addExample={addExample} />
+      <NoteList word={word} noteService={noteService} />
     </>
   );
 };
