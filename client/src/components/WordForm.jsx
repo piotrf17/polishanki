@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 
 import ExampleList from "./ExampleList";
 import NoteList from "./NoteList";
-import NoteService from "./services/notes";
+import NoteService from "../services/notes";
 
 const wordsInBlank = (front, back) => {
   let startIx = 0;

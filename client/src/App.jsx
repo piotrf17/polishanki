@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-import Word from "./Word";
-import WordForm from "./WordForm";
-import WordList from "./WordList";
+import Word from "./components/Word";
+import WordForm from "./components/WordForm";
+import WordList from "./components/WordList";
 
 const App = () => {
   const padding = {

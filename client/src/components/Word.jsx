@@ -4,7 +4,7 @@ import axios from "axios";
 
 import NoteList from "./NoteList";
 import Noun from "./Noun";
-import NoteService from "./services/notes";
+import NoteService from "../services/notes";
 
 const Word = () => {
   const word = useParams().word;
