@@ -181,11 +181,11 @@ def _parse_noun_inflection_table(table, noun_declension):
         form = row.th.string.strip()
         texts = row.find_all("td")
         if singular:
-            _add_cases_form(form, texts[0].span.string.strip(), singular)
+            _add_cases_form(form, _span_to_text(texts[0].span), singular)
             if plural:
-                _add_cases_form(form, texts[1].span.string.strip(), plural)
+                _add_cases_form(form, _span_to_text(texts[1].span), plural)
         elif plural:
-            _add_cases_form(form, texts[0].span.string.strip(), plural)
+            _add_cases_form(form, _span_to_text(texts[0]), plural)
 
 
 def _parse_verb_person_forms(row, person):

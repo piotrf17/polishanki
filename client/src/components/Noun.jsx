@@ -1,8 +1,20 @@
 import { Link } from "react-router-dom";
 
 const Noun = ({ word, nounDeclension }) => {
+  // TODO(piotrf): refactor to library and use with Verb and Adjective.
   const formLink = (form) => {
-    return <Link to={`/words/${word}/${form}`}>{form}</Link>;
+    const forms = form.split("/").map((form) => form.trim());
+    console.log(forms);
+    return (
+      <>
+        {forms.map((form, ix) => (
+          <Link key={ix} to={`/words/${word}/${form}`}>
+            {ix > 0 ? " / " : ""}
+            {form}
+          </Link>
+        ))}
+      </>
+    );
   };
 
   const hasSingular = "singular" in nounDeclension;

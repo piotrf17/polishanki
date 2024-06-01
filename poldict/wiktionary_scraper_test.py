@@ -47,6 +47,28 @@ class TestWiktionaryScraper(unittest.TestCase):
             ["drzwi", "drzwi", "drzwiom", "drzwi", "drzwiami", "drzwiach", "drzwi"],
         )
 
+    def test_noun_bug1(self):
+        word = get_forms("człowiek")
+        self.assertEqual(len(word.meanings), 1)
+        m = word.meanings[0]
+        self.assertEqual(m.WhichOneof("inflection"), "noun")
+        self._check_cases(
+            m.noun.singular,
+            [
+                "człowiek",
+                "człowieka",
+                "człowiekowi",
+                "człowieka",
+                "człowiekiem",
+                "człowieku",
+                "człowiecze / człowieku",
+            ],
+        )
+        self._check_cases(
+            m.noun.plural,
+            ["ludzie", "ludzi", "ludziom", "ludzi", "ludźmi", "ludziach", "ludzie"],
+        )
+
     def test_imperfect_verb(self):
         word = get_forms("biegać")
         self.assertEqual(len(word.meanings), 1)
