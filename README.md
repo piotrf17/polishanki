@@ -11,5 +11,5 @@ $ npm run dev
 To run the server, first enable the virtual environment, then run:
 
 ```
-$ flask --app cards run
+$ flask --app cards run --without-threads
 ```
