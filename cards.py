@@ -58,12 +58,15 @@ def index():
 @app.route("/api/words/<word>")
 @cross_origin(origins=NODE_FRONTEND)
 def words(word):
-    word_data, scrape_time = get_wiktionary_db().lookup(word)
-    data = {
-        "word_data": json_format.MessageToDict(word_data),
-        "scrape_time": scrape_time,
-    }
-    return jsonify(data)
+    try:
+        word_data, scrape_time = get_wiktionary_db().lookup(word)
+        data = {
+            "word_data": json_format.MessageToDict(word_data),
+            "scrape_time": scrape_time,
+        }
+        return jsonify(data)
+    except Exception as e:
+        return make_response(jsonify(error=str(e)), 500)
 
 
 @app.route("/api/wordlist")
