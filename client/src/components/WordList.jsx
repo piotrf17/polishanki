@@ -29,7 +29,8 @@ const WordList = () => {
     navigate(getUrl(1, query));
   };
 
-  const matchingWords = allWords.filter((word) => {
+  const matchingWords = allWords.filter((wordData) => {
+    const word = wordData.word;
     if (query == "") {
       return true;
     }
@@ -72,13 +73,23 @@ const WordList = () => {
         <input onChange={handleSearch} value={query} />
       </div>
       <div>
-        <ul>
-          {words.map((word) => (
-            <li key={word}>
-              <Link to={"/words/" + word}>{word}</Link>
-            </li>
-          ))}
-        </ul>
+        <table>
+          <tbody>
+            {words.map((wordData) => (
+              <tr key={wordData.ix}>
+                <td>{wordData.ix + 1}. </td>
+                <td>
+                  <Link to={"/words/" + wordData.word}>{wordData.word}</Link>
+                </td>
+                <td>
+                  {wordData.note_count > 0 && wordData.note_count}
+                  {wordData.note_count == 1 && " note"}
+                  {wordData.note_count > 1 && " notes"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </>
   );

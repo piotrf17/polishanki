@@ -94,3 +94,8 @@ class NoteDb(object):
     def find_notes(self, word):
         result = self.conn.execute("SELECT note FROM notes WHERE word = ?", (word,))
         return [note_pb2.Note.FromString(row[0]) for row in result]
+
+    def word_to_count(self):
+        """Returns a dictionary mapping word -> number of notes."""
+        result = self.conn.execute("SELECT word, COUNT(*) FROM notes GROUP BY word")
+        return {row[0]: row[1] for row in result}

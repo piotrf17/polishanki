@@ -4,7 +4,6 @@ const Noun = ({ word, nounDeclension }) => {
   // TODO(piotrf): refactor to library and use with Verb and Adjective.
   const formLink = (form) => {
     const forms = form.split("/").map((form) => form.trim());
-    console.log(forms);
     return (
       <>
         {forms.map((form, ix) => (

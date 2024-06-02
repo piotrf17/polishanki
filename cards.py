@@ -73,7 +73,14 @@ def words(word):
 @cross_origin(origins=NODE_FRONTEND)
 def wordlist():
     words = get_wordlist()
-    return jsonify(words)
+    word_to_count = get_note_db().word_to_count()
+    result = []
+    for ix, word in enumerate(words):
+        word_data = {"ix": ix, "word": word, "note_count": 0}
+        if word in word_to_count:
+            word_data["note_count"] = word_to_count[word]
+        result.append(word_data)
+    return jsonify(result)
 
 
 @app.route("/api/notes_for_word/<word>")
