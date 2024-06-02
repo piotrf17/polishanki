@@ -1,11 +1,12 @@
 import { useState } from "react";
 
 const boldWord = (word, example) => {
-  const startIx = example.indexOf(word);
+  const startIx = example.toLowerCase().indexOf(word);
+  if (startIx == -1) return example;
   return (
     <span>
       {example.substring(0, startIx)}
-      <b>{word}</b>
+      <b>{example.substring(startIx, startIx + word.length)}</b>
       {example.substring(startIx + word.length)}
     </span>
   );
