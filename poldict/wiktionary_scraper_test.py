@@ -69,6 +69,28 @@ class TestWiktionaryScraper(unittest.TestCase):
             ["ludzie", "ludzi", "ludziom", "ludzi", "ludźmi", "ludziach", "ludzie"],
         )
 
+    def test_noun_bug2(self):
+        word = get_forms("dom")
+        self.assertEqual(len(word.meanings), 1)
+        m = word.meanings[0]
+        self.assertEqual(m.WhichOneof("inflection"), "noun")
+        self._check_cases(
+            m.noun.singular,
+            [
+                "dom",
+                "domu",
+                "domowi",
+                "dom",
+                "domem",
+                "domu / domie",
+                "domu / domie",
+            ],
+        )
+        self._check_cases(
+            m.noun.plural,
+            ["domy", "domów", "domom", "domy", "domami", "domach", "domy"],
+        )
+
     def test_imperfect_verb(self):
         word = get_forms("biegać")
         self.assertEqual(len(word.meanings), 1)

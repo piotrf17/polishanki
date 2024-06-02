@@ -83,9 +83,10 @@ class ParseNode(object):
 def _parse_html(soup):
     current_tag = None
     for lang_heading in soup.find_all("h2"):
-        if not lang_heading.span:
+        headline = lang_heading.find("span", "mw-headline")
+        if headline is None:
             continue
-        if lang_heading.span.string.strip() == "Polish":
+        if headline.string.strip() == "Polish":
             current_tag = lang_heading
             break
     if not current_tag:
