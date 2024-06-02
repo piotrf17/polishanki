@@ -1,3 +1,4 @@
+import csv
 import random
 import sqlite3
 import time
@@ -99,3 +100,24 @@ class NoteDb(object):
         """Returns a dictionary mapping word -> number of notes."""
         result = self.conn.execute("SELECT word, COUNT(*) FROM notes GROUP BY word")
         return {row[0]: row[1] for row in result}
+
+    def export_to_csv(self, path):
+        num_notes = 0
+        with open(path, "w") as f:
+            writer = csv.writer(f, delimiter=";", quotechar='"')
+            result = self.conn.execute("SELECT note FROM NOTES")
+            for row in result:
+                note = note_pb2.Note.FromString(row[0])
+                fields = [
+                    note.id,
+                    note.front,
+                    "",  # Front picture
+                    note.hint,
+                    note.word,
+                    note.back,
+                    note.extra_info,
+                    "",  # Two cards?
+                ]
+                writer.writerow(fields)
+                num_notes += 1
+        return num_notes

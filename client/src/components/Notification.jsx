@@ -1,9 +1,5 @@
-import { useState } from "react";
-
-const Notification = ({ message }) => {
-  const [hidden, setHidden] = useState(false);
-
-  if (message === null || hidden) {
+const Notification = ({ message, setErrorMessage }) => {
+  if (message === null) {
     return null;
   }
 
@@ -11,7 +7,7 @@ const Notification = ({ message }) => {
     <div className="error">
       <button
         onClick={() => {
-          setHidden(true);
+          setErrorMessage(null);
         }}
       >
         x

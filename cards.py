@@ -10,11 +10,13 @@ from poldict.wiktionary_db import WiktionaryDb
 
 app = Flask(__name__)
 
+# TODO(piotrf): put these in some configuration file.
 WIKTIONARY_DB = "data/wiktionary.sqlite"
 ANKI_DB = "data/anki.sqlite"
 REVERSO_DB = "data/reverso.sqlite"
 WORDLIST = "data/frequency_list_base_50k.txt"
 NODE_FRONTEND = "http://localhost:5173"
+ANKI_CSV = "../../../../anki/polish2.csv"
 
 
 # I'm running this locally as an app, so for expediency we store
@@ -128,3 +130,11 @@ def examples(word):
 @cross_origin(origins=NODE_FRONTEND)
 def scrape_next_page(word):
     return jsonify(json_format.MessageToDict(get_reverso_db().scrape_next_page(word)))
+
+
+@app.route("/api/export_to_csv")
+@cross_origin(origins=NODE_FRONTEND)
+def export_to_csv():
+    num_notes = get_note_db().export_to_csv(ANKI_CSV)
+    current_app.logger.info(f"Wrote {num_notes} notes.")
+    return jsonify(noteCount=num_notes)
