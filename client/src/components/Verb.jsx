@@ -31,30 +31,33 @@ const Verb = ({ word, verbConjugation }) => {
   };
 
   const addTense = (name, tense) => {
-    const hasImpersonal = "impersonal" in tense;
-    const rowSpan = hasImpersonal ? "4" : "3";
+    const numPersons = Object.keys(tense).length;
     return (
       <>
         <tr>
-          <th rowSpan={rowSpan}>{name}</th>
+          <th rowSpan={numPersons}>{name}</th>
           <th>
             1<sup>st</sup>
           </th>
           {addTenseForms(tense.first)}
         </tr>
-        <tr>
-          <th>
-            2<sup>nd</sup>
-          </th>
-          {addTenseForms(tense.second)}
-        </tr>
-        <tr>
-          <th>
-            3<sup>rd</sup>
-          </th>
-          {addTenseForms(tense.third)}
-        </tr>
-        {hasImpersonal && (
+        {"second" in tense && (
+          <tr>
+            <th>
+              2<sup>nd</sup>
+            </th>
+            {addTenseForms(tense.second)}
+          </tr>
+        )}
+        {"third" in tense && (
+          <tr>
+            <th>
+              3<sup>rd</sup>
+            </th>
+            {addTenseForms(tense.third)}
+          </tr>
+        )}
+        {"impersonal" in tense && (
           <tr>
             <th>impersonal</th>
             {addTenseForms(tense.impersonal)}
