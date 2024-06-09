@@ -82,12 +82,12 @@ class ParseNode(object):
 
 def _parse_html(soup):
     current_tag = None
-    for lang_heading in soup.find_all("h2"):
-        headline = lang_heading.find("span", "mw-headline")
-        if headline is None:
+    for lang_div in soup.find_all("div", "mw-heading2"):
+        if lang_div.h2.string is None:
             continue
-        if headline.string.strip() == "Polish":
-            current_tag = lang_heading
+        language = lang_div.h2.string.strip()
+        if language == "Polish":
+            current_tag = lang_div
             break
     if not current_tag:
         raise KeyError("no Polish definition")
@@ -103,14 +103,27 @@ def _parse_html(soup):
         if current_tag.name is None:
             continue
 
-        if len(current_tag.name) == 2 and current_tag.name[0] == "h":
-            depth = int(current_tag.name[1])
+        if (
+            current_tag.name == "div"
+            and "class" in current_tag.attrs
+            and "mw-heading" in current_tag["class"]
+        ):
+            labeled_heading = None
+            for entry in current_tag["class"]:
+                if entry.startswith("mw-heading") and entry != "mw-heading":
+                    labeled_heading = entry
+                    break
+            assert labeled_heading is not None
+            depth = int(labeled_heading[10:])
 
             # Break if another language starts.
             if depth == 2:
                 break
 
-            next_node = ParseNode(current_tag.span.string.strip(), depth)
+            h = current_tag.find(f"h{depth}")
+            assert h is not None
+
+            next_node = ParseNode(h.string.strip(), depth)
             if depth > node.depth:
                 node.children.append(next_node)
                 next_node.parent = node
