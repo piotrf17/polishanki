@@ -269,8 +269,6 @@ def parse_markup(title, page):
     proto.word = title
 
     nouns = parse_tree.find_all("Noun")
-    # xxx
-    nouns = []
     for noun in nouns:
         meaning = _parse_noun(title, noun)
         if meaning is None:
@@ -278,8 +276,6 @@ def parse_markup(title, page):
         proto.meanings.append(meaning)
 
     verbs = parse_tree.find_all("Verb")
-    # xxx
-    verbs = []
     for verb in verbs:
         meaning = _parse_verb(title, verb)
         if meaning is None:
