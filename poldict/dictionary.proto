@@ -1,5 +1,5 @@
 // To regenerate python proto file:
-//   $ protoc --python_out=./ inflection.proto
+//   $ protoc --python_out=./ dictionary.proto
 syntax = "proto2";
 
 message Cases {
@@ -50,7 +50,7 @@ message VerbConjugation {
 }
 
 message Meaning {
-  optional string definition = 1;
+  repeated string definition = 1;
   
   enum PartOfSpeech {
     kUnknown = 0;
@@ -59,6 +59,25 @@ message Meaning {
     kVerb = 3;
   }
   optional PartOfSpeech part_of_speech = 2;
+
+  // Gender, only filled in for nouns.
+  enum Gender {
+    kUnknownGender = 0;
+    kMasculinePersonal = 1;
+    kMasculineAnimate = 2;
+    kMasculineInanimate = 3;
+    kFeminine = 4;
+    kNeuter = 5;
+  }
+  repeated Gender gender = 6;
+
+  // Aspect, only filled in for verbs.
+  enum Aspect {
+    kUnknownAspect = 1;
+    kImperfective = 2;
+    kPerfective = 3;
+  }
+  optional Aspect aspect = 7;
 
   oneof inflection {
     NounDeclension noun = 3;

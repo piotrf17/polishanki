@@ -43,7 +43,7 @@ class WiktionaryDb:
               available in the sqlite db.
 
         Returns:
-          A tuple containing inflection_pb2.Word and the time the page
+          A tuple containing dictionary_pb2.Word and the time the page
           was scraped, or None if the word cannot be found.
         """
         if not force_rescrape:

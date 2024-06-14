@@ -10,7 +10,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
-from poldict import inflection_pb2
+from poldict import dictionary_pb2
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36",
@@ -289,13 +289,13 @@ def get_forms_from_html(word, html):
     soup = BeautifulSoup(html, features="lxml")
     parse_tree = _parse_html(soup)
 
-    proto = inflection_pb2.Word()
+    proto = dictionary_pb2.Word()
     proto.word = word
 
     nouns = parse_tree.find_all("Noun")
     for noun in nouns:
-        meaning = inflection_pb2.Meaning()
-        meaning.part_of_speech = inflection_pb2.Meaning.kNoun
+        meaning = dictionary_pb2.Meaning()
+        meaning.part_of_speech = dictionary_pb2.Meaning.kNoun
         declension = noun.find("Declension")
         if declension is None:
             continue
@@ -306,8 +306,8 @@ def get_forms_from_html(word, html):
 
     verbs = parse_tree.find_all("Verb")
     for verb in verbs:
-        meaning = inflection_pb2.Meaning()
-        meaning.part_of_speech = inflection_pb2.Meaning.kVerb
+        meaning = dictionary_pb2.Meaning()
+        meaning.part_of_speech = dictionary_pb2.Meaning.kVerb
         conjugation = verb.find("Conjugation")
         if conjugation is None:
             continue
@@ -318,8 +318,8 @@ def get_forms_from_html(word, html):
 
     adjectives = parse_tree.find_all("Adjective")
     for adjective in adjectives:
-        meaning = inflection_pb2.Meaning()
-        meaning.part_of_speech = inflection_pb2.Meaning.kAdjective
+        meaning = dictionary_pb2.Meaning()
+        meaning.part_of_speech = dictionary_pb2.Meaning.kAdjective
         declension = adjective.find("Declension")
         if declension is None:
             continue
@@ -338,7 +338,7 @@ def get_forms(word):
         word: a string word to scrape
 
     Returns:
-        An inflection_pb2.Word containing all inflected forms.
+        An dictionary_pb2.Word containing all inflected forms.
     """
     html = get_html(word, DEBUG)
     return get_forms_from_html(word, html)
