@@ -76,6 +76,7 @@ message Meaning {
     kUnknownAspect = 1;
     kImperfective = 2;
     kPerfective = 3;
+    kBiaspectual = 4;
   }
   optional Aspect aspect = 7;
 

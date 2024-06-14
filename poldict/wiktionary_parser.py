@@ -206,6 +206,62 @@ def _parse_noun(word, noun):
     return meaning
 
 
+def _parse_aspect(aspect):
+    if aspect == "pf":
+        return dictionary_pb2.Meaning.kPerfective
+    elif aspect in ["impf", "impf-freq", "impf-det", "impf-indet"]:
+        return dictionary_pb2.Meaning.kImperfective
+    elif aspect == "biasp":
+        return dictionary_pb2.Meaning.kBiaspectual
+    assert False, f"ERROR: unknown aspect '{aspect}'"
+
+
+def _parse_verb(word, verb):
+    if not verb.lines:
+        return None
+
+    meaning = dictionary_pb2.Meaning()
+    meaning.part_of_speech = dictionary_pb2.Meaning.kVerb
+
+    head = _find_head(verb.lines)
+    template_re = re.compile(r"\{\{.+?\}\}")
+    templates = template_re.findall(head)
+
+    for template in templates:
+        head_parts = template[2:-2].split("|")
+
+        # Skip verb entries that are conjugations, and not base words
+        if head_parts[0] == "head" or head_parts[0] == "head-lite":
+            return None
+
+        if head_parts[0] != "pl-verb":
+            continue
+
+        meaning.aspect = _parse_aspect(head_parts[1])
+
+    # Parse out definitions.
+    for line in verb.lines:
+        if line.startswith("# "):
+            meaning.definition.append(_parse_definition(line))
+
+    return meaning
+
+
+def _parse_adjective(word, adjective):
+    if not adjective.lines:
+        return None
+
+    meaning = dictionary_pb2.Meaning()
+    meaning.part_of_speech = dictionary_pb2.Meaning.kAdjective
+
+    # Parse out definitions.
+    for line in adjective.lines:
+        if line.startswith("# "):
+            meaning.definition.append(_parse_definition(line))
+
+    return meaning
+
+
 def parse_markup(title, page):
     parse_tree = _build_parse_tree(page)
 
@@ -213,8 +269,26 @@ def parse_markup(title, page):
     proto.word = title
 
     nouns = parse_tree.find_all("Noun")
+    # xxx
+    nouns = []
     for noun in nouns:
         meaning = _parse_noun(title, noun)
+        if meaning is None:
+            continue
+        proto.meanings.append(meaning)
+
+    verbs = parse_tree.find_all("Verb")
+    # xxx
+    verbs = []
+    for verb in verbs:
+        meaning = _parse_verb(title, verb)
+        if meaning is None:
+            continue
+        proto.meanings.append(meaning)
+
+    adjectives = parse_tree.find_all("Adjective")
+    for adjective in adjectives:
+        meaning = _parse_adjective(title, adjective)
         if meaning is None:
             continue
         proto.meanings.append(meaning)
