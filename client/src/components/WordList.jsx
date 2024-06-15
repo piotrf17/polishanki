@@ -14,6 +14,10 @@ const WordList = () => {
   const currentPage = "page" in params ? parseInt(params.page) : 1;
   const query = ("query" in params ? params.query : "").toLowerCase();
   const [allWords, setAllWords] = useState([]);
+  const [matchAll, setMatchAll] = useState(true);
+  const [matchNouns, setMatchNouns] = useState(true);
+  const [matchVerbs, setMatchVerbs] = useState(true);
+  const [matchAdjectives, setMatchAdjectives] = useState(true);
   const WORDS_PER_PAGE = 100;
   const navigate = useNavigate();
 
@@ -29,7 +33,21 @@ const WordList = () => {
     navigate(getUrl(1, query));
   };
 
+  const matchesPosFilter = (wordData) => {
+    if (matchAll) return true;
+    if (matchNouns && wordData.has_noun) return true;
+    if (matchVerbs && wordData.has_verb) return true;
+    if (matchAdjectives && wordData.has_adjective) return true;
+    return false;
+  };
+
   const matchingWords = allWords.filter((wordData) => {
+    // First, match on parts of speech.
+    if (!matchesPosFilter(wordData)) {
+      return false;
+    }
+
+    // Next, match on query.
     const word = wordData.word;
     if (query == "") {
       return true;
@@ -55,6 +73,45 @@ const WordList = () => {
   return (
     <>
       <h1>Wordlist</h1>
+      <div>
+        <span>
+          <input
+            type="checkbox"
+            defaultChecked={matchAll}
+            onChange={(e) => {
+              setMatchAll(e.target.checked);
+            }}
+          />{" "}
+          All
+          <input
+            type="checkbox"
+            disabled={matchAll}
+            defaultChecked={matchNouns}
+            onChange={(e) => {
+              setMatchNouns(e.target.checked);
+            }}
+          />{" "}
+          Nouns
+          <input
+            type="checkbox"
+            disabled={matchAll}
+            defaultChecked={matchVerbs}
+            onChange={(e) => {
+              setMatchVerbs(e.target.checked);
+            }}
+          />{" "}
+          Verbs
+          <input
+            type="checkbox"
+            disabled={matchAll}
+            defaultChecked={matchAdjectives}
+            onChange={(e) => {
+              setMatchAdjectives(e.target.checked);
+            }}
+          />{" "}
+          Adjectives
+        </span>
+      </div>
       <div>
         {currentPage > 1 && (
           <Link to={getUrl(currentPage - 1, query)}>prev</Link>

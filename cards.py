@@ -5,6 +5,7 @@ from google.protobuf import json_format
 from anki.note_db import NoteDb
 from anki import note_pb2
 from examples.reverso_db import ReversoDb
+from poldict.dictionary import Dictionary
 from poldict.wiktionary_db import WiktionaryDb
 
 
@@ -17,6 +18,7 @@ REVERSO_DB = "data/reverso.sqlite"
 WORDLIST = "data/frequency_list_base_50k.txt"
 NODE_FRONTEND = "http://localhost:5173"
 ANKI_CSV = "../../../../anki/polish2.csv"
+POLDICT_DB = "data/poldict.sqlite"
 
 
 # I'm running this locally as an app, so for expediency we store
@@ -44,6 +46,12 @@ def get_wordlist():
         with open(WORDLIST, "r") as f:
             g.words = [line.split(";")[0] for line in f.readlines()[1:]]
     return g.words
+
+
+def get_poldict():
+    if "poldict" not in g:
+        g.poldict = Dictionary(POLDICT_DB)
+    return g.poldict
 
 
 def error_response(error_text):
@@ -76,11 +84,17 @@ def words(word):
 def wordlist():
     words = get_wordlist()
     word_to_count = get_note_db().word_to_count()
+    word_to_meta = get_poldict().word_to_meta()
     result = []
     for ix, word in enumerate(words):
         word_data = {"ix": ix, "word": word, "note_count": 0}
         if word in word_to_count:
             word_data["note_count"] = word_to_count[word]
+        if word in word_to_meta:
+            meta = word_to_meta[word]
+            word_data["has_noun"] = meta[0]
+            word_data["has_verb"] = meta[1]
+            word_data["has_adjective"] = meta[2]
         result.append(word_data)
     return jsonify(result)
 

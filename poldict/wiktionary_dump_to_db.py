@@ -12,6 +12,7 @@ import sys
 from absl import app
 from absl import flags
 
+from poldict.dictionary import Dictionary
 from poldict.wiktionary_parser import parse_markup
 
 
@@ -85,14 +86,23 @@ def extract_polish_pages(dump_path, output_path, allow_list):
             if page_nums % 1000 == 0:
                 print(f"  ... {page_nums} raw polish pages collected")
         if page_nums % 1000 != 0:
-            print(f"  ... {page_nums} raw polish pages collected, done.")
+            print(f"  {page_nums} raw polish pages collected, done.")
     db.close()
 
 
 def extract_words(intermediate_dump, output_path):
+    dictionary = Dictionary(output_path)
+    dictionary.create()
     with dbm.open(intermediate_dump) as db:
+        words_and_protos = []
         for word in db.keys():
             proto = parse_markup(word.decode("utf-8"), db[word].decode("utf-8"))
+            if not proto.meanings:
+                continue
+            words_and_protos.append((word.decode("utf-8"), proto))
+        dictionary.insert_many(words_and_protos)
+        print(f"Inserted {len(words_and_protos)} words into the dictionary.")
+    dictionary.close()
 
 
 def main(argv):
