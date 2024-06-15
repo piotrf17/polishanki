@@ -10,7 +10,6 @@ import Verb from "./Verb";
 
 const Word = ({ setErrorMessage }) => {
   const word = useParams().word;
-  const [scrapeTime, setScrapeTime] = useState(0.0);
   const [wordData, setWordData] = useState(null);
   const noteService = new NoteService();
 
@@ -18,8 +17,7 @@ const Word = ({ setErrorMessage }) => {
     axios
       .get(`http://localhost:5000/api/words/${word}`)
       .then((response) => {
-        setScrapeTime(response.data.scrape_time);
-        setWordData(response.data.word_data);
+        setWordData(response.data);
       })
       .catch((error) => {
         const serverError = error.response.data.error;
@@ -38,16 +36,13 @@ const Word = ({ setErrorMessage }) => {
           {wordData.meanings.map((meaning, index) => (
             <div key={index}>
               {meaning.partOfSpeech == "kNoun" && (
-                <Noun word={word} nounDeclension={meaning.noun} />
+                <Noun word={word} meaning={meaning} />
               )}
               {meaning.partOfSpeech == "kVerb" && (
-                <Verb word={word} verbConjugation={meaning.verb} />
+                <Verb word={word} meaning={meaning} />
               )}
               {meaning.partOfSpeech == "kAdjective" && (
-                <Adjective
-                  word={word}
-                  adjectiveDeclension={meaning.adjective}
-                />
+                <Adjective word={word} meaning={meaning} />
               )}
             </div>
           ))}

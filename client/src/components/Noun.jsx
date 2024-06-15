@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
-const Noun = ({ word, nounDeclension }) => {
+import Definition from "./Definition";
+
+const Noun = ({ word, meaning }) => {
   // TODO(piotrf): refactor to library and use with Verb and Adjective.
   const formLink = (form) => {
     const forms = form.split("/").map((form) => form.trim());
@@ -16,6 +18,7 @@ const Noun = ({ word, nounDeclension }) => {
     );
   };
 
+  const nounDeclension = meaning.noun;
   const hasSingular = "singular" in nounDeclension;
   const hasPlural = "plural" in nounDeclension;
 
@@ -32,6 +35,16 @@ const Noun = ({ word, nounDeclension }) => {
   return (
     <>
       <h2>Noun</h2>
+      <div className="gender">
+        <span>
+          {meaning.gender == "kMasculinePersonal" && "masculine personal"}
+          {meaning.gender == "kMasculineAnimate" && "masculine animate"}
+          {meaning.gender == "kMasculineInanimate" && "masculine inanimate"}
+          {meaning.gender == "kFeminine" && "feminine"}
+          {meaning.gender == "kNeuter" && "neuter"}
+        </span>
+      </div>
+      <Definition definitions={meaning.definition} />
       <table className="noun-inflection-table">
         <tbody>
           <tr className="header">

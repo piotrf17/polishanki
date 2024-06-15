@@ -45,6 +45,18 @@ div.note[data-editing="true"] {
   font-size: 0.75em;
 }
 
+/**** Words ****/
+
+div.gender {
+  padding: 0 0 0 5px;
+  font-style: italic;
+}
+
+div.aspect {
+  padding: 0 0 0 5px;
+  font-style: italic;
+}
+
 /**** Noun Inflection Table ****/
 
 table.noun-inflection-table {

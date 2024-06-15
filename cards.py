@@ -6,13 +6,11 @@ from anki.note_db import NoteDb
 from anki import note_pb2
 from examples.reverso_db import ReversoDb
 from poldict.dictionary import Dictionary
-from poldict.wiktionary_db import WiktionaryDb
 
 
 app = Flask(__name__)
 
 # TODO(piotrf): put these in some configuration file.
-WIKTIONARY_DB = "data/wiktionary.sqlite"
 ANKI_DB = "data/anki.sqlite"
 REVERSO_DB = "data/reverso.sqlite"
 WORDLIST = "data/frequency_list_base_50k.txt"
@@ -23,12 +21,6 @@ POLDICT_DB = "data/poldict.sqlite"
 
 # I'm running this locally as an app, so for expediency we store
 # global variables instead of dealing with application context or sessions.
-def get_wiktionary_db():
-    if "wiktionary_db" not in g:
-        g.wiktionary_db = WiktionaryDb(WIKTIONARY_DB)
-    return g.wiktionary_db
-
-
 def get_note_db():
     if "note_db" not in g:
         g.note_db = NoteDb(ANKI_DB)
@@ -69,12 +61,8 @@ def index():
 @cross_origin(origins=NODE_FRONTEND)
 def words(word):
     try:
-        word_data, scrape_time = get_wiktionary_db().lookup(word)
-        data = {
-            "word_data": json_format.MessageToDict(word_data),
-            "scrape_time": scrape_time,
-        }
-        return jsonify(data)
+        word_data = get_poldict().lookup(word)
+        return jsonify(json_format.MessageToDict(word_data))
     except Exception as e:
         return make_response(jsonify(error=str(e)), 500)
 

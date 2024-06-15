@@ -4,9 +4,11 @@ Combines a sqlite database of word info parsed form a wiktionary dump,
 with a wiktionary scraper to fill in inflected forms.
 """
 
+import os
 import sqlite3
 
 from poldict import dictionary_pb2
+from poldict import wiktionary_scraper
 
 SCHEMA = """
 DROP TABLE IF EXISTS words;
@@ -19,6 +21,17 @@ CREATE TABLE words (
   proto BLOB NOT NULL
 );
 """
+
+WIKI_CACHE = "data/wiktionary_cache"
+
+
+def get_html(word):
+    cache_path = os.path.join(WIKI_CACHE, f"{word}.html")
+    if os.path.exists(cache_path):
+        return open(cache_path).read()
+    html = wiktionary_scraper.get_html(word)
+    open(cache_path, "wb").write(html)
+    return html
 
 
 class Dictionary:
@@ -53,6 +66,24 @@ class Dictionary:
             tuples,
         )
         self.conn.commit()
+
+    def lookup(self, word):
+        # Read the word from the sqlite dictionary.
+        row = self.conn.execute(
+            "SELECT proto FROM words WHERE word=?", (word,)
+        ).fetchone()
+        if row is None:
+            raise IndexError(f"word {word} not in dictionary")
+        proto = dictionary_pb2.Word.FromString(row[0])
+
+        # Now, fetch inflections from wiktionary.
+        page = get_html(word)
+        proto2 = wiktionary_scraper.get_forms_from_html(word, page)
+        assert len(proto.meanings) == len(proto2.meanings)
+        for meaning, meaning2 in zip(proto.meanings, proto2.meanings):
+            meaning.MergeFrom(meaning2)
+
+        return proto
 
     def word_to_meta(self):
         result = self.conn.execute(

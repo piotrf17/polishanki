@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-const Adjective = ({ word, adjectiveDeclension }) => {
+import Definition from "./Definition";
+
+const Adjective = ({ word, meaning }) => {
+  const adjectiveDeclension = meaning.adjective;
+
   const formLink = (form) => {
     return <Link to={`/words/${word}/${form}`}>{form}</Link>;
   };
@@ -36,6 +40,7 @@ const Adjective = ({ word, adjectiveDeclension }) => {
   return (
     <>
       <h2>Adjective</h2>
+      <Definition definitions={meaning.definition} />
       <table className="verb-inflection-table">
         <tbody>
           <tr className="header">

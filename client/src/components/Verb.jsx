@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-const Verb = ({ word, verbConjugation }) => {
+import Definition from "./Definition";
+
+const Verb = ({ word, meaning }) => {
+  const verbConjugation = meaning.verb;
+
   const formLink = (form) => {
     return <Link to={`/words/${word}/${form}`}>{form}</Link>;
   };
@@ -70,6 +74,14 @@ const Verb = ({ word, verbConjugation }) => {
   return (
     <>
       <h2>Verb</h2>
+      <div className="aspect">
+        <span>
+          {meaning.aspect == "kImperfective" && "imperfective"}
+          {meaning.aspect == "kPerfective" && "perfective"}
+          {meaning.aspect == "kBiaspectual" && "biaspectual"}
+        </span>
+      </div>
+      <Definition definitions={meaning.definition} />
       <table className="verb-inflection-table">
         <tbody>
           <tr className="header">
