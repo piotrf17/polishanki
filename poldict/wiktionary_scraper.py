@@ -298,6 +298,7 @@ def get_forms_from_html(word, html):
         meaning.part_of_speech = dictionary_pb2.Meaning.kNoun
         declension = noun.find("Declension")
         if declension is None:
+            proto.meanings.append(meaning)
             continue
         inflection_table = declension.find_tag("table", "inflection-table")
         assert inflection_table is not None
@@ -310,6 +311,7 @@ def get_forms_from_html(word, html):
         meaning.part_of_speech = dictionary_pb2.Meaning.kVerb
         conjugation = verb.find("Conjugation")
         if conjugation is None:
+            proto.meanings.append(meaning)
             continue
         inflection_table = conjugation.find_tag("table", "inflection-table")
         assert inflection_table is not None
@@ -322,6 +324,7 @@ def get_forms_from_html(word, html):
         meaning.part_of_speech = dictionary_pb2.Meaning.kAdjective
         declension = adjective.find("Declension")
         if declension is None:
+            proto.meanings.append(meaning)
             continue
         inflection_table = declension.find_tag("table", "inflection-table")
         assert inflection_table is not None

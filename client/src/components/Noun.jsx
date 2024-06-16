@@ -45,22 +45,24 @@ const Noun = ({ word, meaning }) => {
         </span>
       </div>
       <Definition definitions={meaning.definition} />
-      <table className="noun-inflection-table">
-        <tbody>
-          <tr className="header">
-            <th></th>
-            {hasSingular && <th>singular</th>}
-            {hasPlural && <th>plural</th>}
-          </tr>
-          {declensionRow("nominative")}
-          {declensionRow("genitive")}
-          {declensionRow("dative")}
-          {declensionRow("accusative")}
-          {declensionRow("instrumental")}
-          {declensionRow("locative")}
-          {declensionRow("vocative")}
-        </tbody>
-      </table>
+      {"noun" in meaning && (
+        <table className="noun-inflection-table">
+          <tbody>
+            <tr className="header">
+              <th></th>
+              {hasSingular && <th>singular</th>}
+              {hasPlural && <th>plural</th>}
+            </tr>
+            {declensionRow("nominative")}
+            {declensionRow("genitive")}
+            {declensionRow("dative")}
+            {declensionRow("accusative")}
+            {declensionRow("instrumental")}
+            {declensionRow("locative")}
+            {declensionRow("vocative")}
+          </tbody>
+        </table>
+      )}
     </>
   );
 };

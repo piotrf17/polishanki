@@ -82,61 +82,63 @@ const Verb = ({ word, meaning }) => {
         </span>
       </div>
       <Definition definitions={meaning.definition} />
-      <table className="verb-inflection-table">
-        <tbody>
-          <tr className="header">
-            <th rowSpan="2"></th>
-            <th rowSpan="2">person</th>
-            <th colSpan="3">singular</th>
-            <th colSpan="2">plural</th>
-          </tr>
-          <tr className="header">
-            <th>masculine</th>
-            <th>feminine</th>
-            <th>neuter</th>
-            <th>virile</th>
-            <th>nonvirile</th>
-          </tr>
-          <tr>
-            <th colSpan="2">infinitive</th>
-            <td colSpan="5">{formLink(word)}</td>
-          </tr>
-          {"present" in verbConjugation &&
-            addTense("present tense", verbConjugation.present)}
-          {"past" in verbConjugation &&
-            addTense("past tense", verbConjugation.past)}
-          {"future" in verbConjugation &&
-            addTense("future tense", verbConjugation.future)}
-          {"conditional" in verbConjugation &&
-            addTense("conditional", verbConjugation.conditional)}
-          {"imperative" in verbConjugation &&
-            addTense("imperative", verbConjugation.imperative)}
-          {"activeAdjectivalParticiple" in verbConjugation && (
-            <tr>
-              <th colSpan="2">active adjectival participle</th>
-              {addTenseForms(verbConjugation.activeAdjectivalParticiple)}
+      {"verb" in meaning && (
+        <table className="verb-inflection-table">
+          <tbody>
+            <tr className="header">
+              <th rowSpan="2"></th>
+              <th rowSpan="2">person</th>
+              <th colSpan="3">singular</th>
+              <th colSpan="2">plural</th>
             </tr>
-          )}
-          {"contemporaryAdverbialParticiple" in verbConjugation && (
-            <tr>
-              <th colSpan="2">contemporary adverbial participle</th>
-              {addTenseForms(verbConjugation.contemporaryAdverbialParticiple)}
+            <tr className="header">
+              <th>masculine</th>
+              <th>feminine</th>
+              <th>neuter</th>
+              <th>virile</th>
+              <th>nonvirile</th>
             </tr>
-          )}
-          {"anteriorAdverbialParticiple" in verbConjugation && (
             <tr>
-              <th colSpan="2">anterior adverbial participle</th>
-              {addTenseForms(verbConjugation.anteriorAdverbialParticiple)}
+              <th colSpan="2">infinitive</th>
+              <td colSpan="5">{formLink(word)}</td>
             </tr>
-          )}
-          {"verbalNoun" in verbConjugation && (
-            <tr>
-              <th colSpan="2">verbal noun</th>
-              {addTenseForms(verbConjugation.verbalNoun)}
-            </tr>
-          )}
-        </tbody>
-      </table>
+            {"present" in verbConjugation &&
+              addTense("present tense", verbConjugation.present)}
+            {"past" in verbConjugation &&
+              addTense("past tense", verbConjugation.past)}
+            {"future" in verbConjugation &&
+              addTense("future tense", verbConjugation.future)}
+            {"conditional" in verbConjugation &&
+              addTense("conditional", verbConjugation.conditional)}
+            {"imperative" in verbConjugation &&
+              addTense("imperative", verbConjugation.imperative)}
+            {"activeAdjectivalParticiple" in verbConjugation && (
+              <tr>
+                <th colSpan="2">active adjectival participle</th>
+                {addTenseForms(verbConjugation.activeAdjectivalParticiple)}
+              </tr>
+            )}
+            {"contemporaryAdverbialParticiple" in verbConjugation && (
+              <tr>
+                <th colSpan="2">contemporary adverbial participle</th>
+                {addTenseForms(verbConjugation.contemporaryAdverbialParticiple)}
+              </tr>
+            )}
+            {"anteriorAdverbialParticiple" in verbConjugation && (
+              <tr>
+                <th colSpan="2">anterior adverbial participle</th>
+                {addTenseForms(verbConjugation.anteriorAdverbialParticiple)}
+              </tr>
+            )}
+            {"verbalNoun" in verbConjugation && (
+              <tr>
+                <th colSpan="2">verbal noun</th>
+                {addTenseForms(verbConjugation.verbalNoun)}
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
     </>
   );
 };

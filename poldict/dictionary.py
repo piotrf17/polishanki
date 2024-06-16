@@ -79,7 +79,10 @@ class Dictionary:
         # Now, fetch inflections from wiktionary.
         page = get_html(word)
         proto2 = wiktionary_scraper.get_forms_from_html(word, page)
-        assert len(proto.meanings) == len(proto2.meanings)
+        if len(proto.meanings) != len(proto2.meanings):
+            raise IndexError(
+                f"meaning length mismatch, base={len(proto.meanings)}, inflect={len(proto2.meanings)}"
+            )
         for meaning, meaning2 in zip(proto.meanings, proto2.meanings):
             meaning.MergeFrom(meaning2)
 
