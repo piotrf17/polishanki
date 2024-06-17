@@ -1,6 +1,18 @@
+import atexit
+from collections import defaultdict
 import re
 
 from poldict import dictionary_pb2
+
+
+unknown_templates = defaultdict(int)
+
+
+@atexit.register
+def print_unknown_templates():
+    print("==UNKNOWN TEMPLATES==")
+    for k, v in sorted(unknown_templates.items(), key=lambda x: -x[1]):
+        print(f"'{k}' -> {v}")
 
 
 class ParseNode(object):
@@ -98,13 +110,96 @@ def _find_head(lines):
     assert False, f"ERROR: failed to find head in: {lines}"
 
 
+def _expand_shortcut(s):
+    SHORTCUTS = {
+        "acc": "accusative",
+        "dat": "dative",
+        "gen": "genitive",
+        "inf": "infinitive",
+        "ins": "instrumental",
+        "loc": "locative",
+        "nom": "nominative",
+        "voc": "vocative",
+    }
+    if s in SHORTCUTS:
+        return SHORTCUTS[s]
+    return s
+
+
+def _expand_shortcuts(l):
+    return [_expand_shortcut(item) for item in l]
+
+
+def _empty_template(args, named_args):
+    return ""
+
+
+def _exec_template_defdate(args, named_args):
+    if len(args) == 1:
+        return "[" + args[0] + "]"
+    else:
+        return f"[{args[0]}–{args[1]}]"
+
+
+def _exec_template_femeq(args, named_args):
+    gloss = ""
+    if "t" in named_args:
+        gloss = '("' + named_args["t"] + '")'
+    return f"female equivalent of {args[1]}{gloss}"
+
+
+def _exec_template_lb(args, named_args):
+    return "(" + ", ".join(args[1:]) + ")"
+
+
+def _exec_template_obj(args, named_args):
+    cases = " ".join(_expand_shortcuts(args[1:]))
+    meaning = ""
+    if "means" in named_args:
+        meaning = " = " + named_args["means"]
+    return f"[+{cases}{meaning}]"
+
+
+def _exec_template_preo(args, named_args):
+    preposition = args[1]
+    cases = "object" if len(args) == 2 else " ".join(_expand_shortcuts(args[2:]))
+    meaning = ""
+    if "means" in named_args:
+        meaning = " = " + named_args["means"]
+    return f"[+ {preposition} ({cases}){meaning}]"
+
+
 def _parse_template(template):
     assert template.startswith("{{")
     assert template.endswith("}}")
+
+    # Process out template args.
+    args = []
+    named_args = {}
     parts = template[2:-2].split("|")
-    if parts[0] == "lb":
-        assert len(parts) > 2, parts
-        return f"({parts[2]})"
+    for part in parts[1:]:
+        if "=" in part:
+            key, value = part.split("=")
+            if key.isnumeric():
+                # TODO(piotrf): consider numbered args.
+                args.append(value)
+            else:
+                named_args[key] = value
+        else:
+            args.append(part)
+
+    TEMPLATES = {
+        "defdate": _exec_template_defdate,
+        "femeq": _exec_template_femeq,
+        "label": _exec_template_lb,
+        "lb": _exec_template_lb,
+        "+obj": _exec_template_obj,
+        "+preo": _exec_template_preo,
+        "senseid": _empty_template,
+    }
+    if parts[0] in TEMPLATES:
+        return TEMPLATES[parts[0]](args, named_args)
+
     elif parts[0] == "gl":
         assert len(parts) > 1, parts
         return f"({parts[1]})"
@@ -117,20 +212,13 @@ def _parse_template(template):
     elif parts[0] == "l":
         assert len(parts) > 2, parts
         return parts[2]
-    elif parts[0] == "+preo":
-        if len(parts) > 4:
-            return f"[+ {parts[2]} ({parts[3]}) = {parts[4][6:]}]"
-        elif len(parts) == 4:
-            return f"[+ {parts[2]} ({parts[3]})]"
-        else:
-            assert len(parts) == 3, parts
-            return f"[+ {parts[2]} (object)]"
     elif parts[0] == "dim of" or parts[0] == "diminutive of":
         assert len(parts) > 2, parts
         return f"diminutive of {parts[2]}"
     elif parts[0] == "taxfmt":
         assert len(parts) > 1, parts
         return parts[1]
+    unknown_templates[parts[0]] += 1
     return template
 
 
