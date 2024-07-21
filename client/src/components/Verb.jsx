@@ -14,12 +14,29 @@ const shortAspectString = (aspect) => {
   }
 };
 
+const isDefective = (verbConjugation) => {
+  const allEqual = (arr) => arr.every((v) => v === arr[0]);
+  const checkTense = (tense) => {
+    if ("second" in tense) return false;
+    return allEqual(tense.first);
+  };
+  if ("present" in verbConjugation && !checkTense(verbConjugation.present))
+    return false;
+  if ("past" in verbConjugation && !checkTense(verbConjugation.past))
+    return false;
+  if ("future" in verbConjugation && !checkTense(verbConjugation.future))
+    return false;
+
+  return true;
+};
+
 const Verb = ({ word, meaning }) => {
   const verbConjugation = meaning.verb;
   const makeExtraInfo = (tense) => {
     const aspect = shortAspectString(meaning.aspect);
     return aspect == "" ? tense : aspect + "; " + tense;
   };
+  const defective = isDefective(meaning.verb);
 
   const addTenseForms = (forms, extraInfo) => {
     const formAndSpan = [];
@@ -54,9 +71,11 @@ const Verb = ({ word, meaning }) => {
       <>
         <tr>
           <th rowSpan={numPersons}>{name}</th>
-          <th>
-            1<sup>st</sup>
-          </th>
+          {!defective && (
+            <th>
+              1<sup>st</sup>
+            </th>
+          )}
           {addTenseForms(tense.first, extraInfo)}
         </tr>
         {"second" in tense && (
@@ -85,6 +104,30 @@ const Verb = ({ word, meaning }) => {
     );
   };
 
+  const makeHeader = () =>
+    defective ? (
+      <tr className="header">
+        <th></th>
+        <th>defective</th>
+      </tr>
+    ) : (
+      <>
+        <tr className="header">
+          <th rowSpan="2"></th>
+          <th rowSpan="2">person</th>
+          <th colSpan="3">singular</th>
+          <th colSpan="2">plural</th>
+        </tr>
+        <tr className="header">
+          <th>masculine</th>
+          <th>feminine</th>
+          <th>neuter</th>
+          <th>virile</th>
+          <th>nonvirile</th>
+        </tr>
+      </>
+    );
+
   return (
     <>
       <h2>Verb</h2>
@@ -99,22 +142,10 @@ const Verb = ({ word, meaning }) => {
       {"verb" in meaning && (
         <table className="verb-inflection-table">
           <tbody>
-            <tr className="header">
-              <th rowSpan="2"></th>
-              <th rowSpan="2">person</th>
-              <th colSpan="3">singular</th>
-              <th colSpan="2">plural</th>
-            </tr>
-            <tr className="header">
-              <th>masculine</th>
-              <th>feminine</th>
-              <th>neuter</th>
-              <th>virile</th>
-              <th>nonvirile</th>
-            </tr>
+            {makeHeader()}
             <tr>
-              <th colSpan="2">infinitive</th>
-              <td colSpan="5">
+              <th colSpan={defective ? "1" : "2"}>infinitive</th>
+              <td colSpan={defective ? "1" : "5"}>
                 {formLink(word, word, makeExtraInfo("infinitive"))}
               </td>
             </tr>
