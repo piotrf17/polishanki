@@ -1,15 +1,27 @@
 import { Link } from "react-router-dom";
 
 import Definition from "./Definition";
+import { formLink } from "./wordUtils";
+
+const shortAspectString = (aspect) => {
+  switch (aspect) {
+    case "kImperfective":
+      return "impf";
+    case "kPerfective":
+      return "perf";
+    case "kBiaspectual":
+      return "";
+  }
+};
 
 const Verb = ({ word, meaning }) => {
   const verbConjugation = meaning.verb;
-
-  const formLink = (form) => {
-    return <Link to={`/words/${word}/${form}`}>{form}</Link>;
+  const makeExtraInfo = (tense) => {
+    const aspect = shortAspectString(meaning.aspect);
+    return aspect == "" ? tense : aspect + "; " + tense;
   };
 
-  const addTenseForms = (forms) => {
+  const addTenseForms = (forms, extraInfo) => {
     const formAndSpan = [];
     let span = 1;
     let lastForm = forms[0];
@@ -27,7 +39,7 @@ const Verb = ({ word, meaning }) => {
       <>
         {formAndSpan.map(([form, span], ix) => (
           <td colSpan={span} key={ix}>
-            {formLink(form)}
+            {formLink(word, form, extraInfo)}
           </td>
         ))}
       </>
@@ -35,6 +47,8 @@ const Verb = ({ word, meaning }) => {
   };
 
   const addTense = (name, tense) => {
+    const shortName = name.split(" ")[0];
+    const extraInfo = makeExtraInfo(shortName);
     const numPersons = Object.keys(tense).length;
     return (
       <>
@@ -43,14 +57,14 @@ const Verb = ({ word, meaning }) => {
           <th>
             1<sup>st</sup>
           </th>
-          {addTenseForms(tense.first)}
+          {addTenseForms(tense.first, extraInfo)}
         </tr>
         {"second" in tense && (
           <tr>
             <th>
               2<sup>nd</sup>
             </th>
-            {addTenseForms(tense.second)}
+            {addTenseForms(tense.second, extraInfo)}
           </tr>
         )}
         {"third" in tense && (
@@ -58,13 +72,13 @@ const Verb = ({ word, meaning }) => {
             <th>
               3<sup>rd</sup>
             </th>
-            {addTenseForms(tense.third)}
+            {addTenseForms(tense.third, extraInfo)}
           </tr>
         )}
         {"impersonal" in tense && (
           <tr>
             <th>impersonal</th>
-            {addTenseForms(tense.impersonal)}
+            {addTenseForms(tense.impersonal, extraInfo)}
           </tr>
         )}
       </>
@@ -100,7 +114,9 @@ const Verb = ({ word, meaning }) => {
             </tr>
             <tr>
               <th colSpan="2">infinitive</th>
-              <td colSpan="5">{formLink(word)}</td>
+              <td colSpan="5">
+                {formLink(word, word, makeExtraInfo("infinitive"))}
+              </td>
             </tr>
             {"present" in verbConjugation &&
               addTense("present tense", verbConjugation.present)}
@@ -115,25 +131,37 @@ const Verb = ({ word, meaning }) => {
             {"activeAdjectivalParticiple" in verbConjugation && (
               <tr>
                 <th colSpan="2">active adjectival participle</th>
-                {addTenseForms(verbConjugation.activeAdjectivalParticiple)}
+                {addTenseForms(
+                  verbConjugation.activeAdjectivalParticiple,
+                  makeExtraInfo("active adjectival participle")
+                )}
               </tr>
             )}
             {"contemporaryAdverbialParticiple" in verbConjugation && (
               <tr>
                 <th colSpan="2">contemporary adverbial participle</th>
-                {addTenseForms(verbConjugation.contemporaryAdverbialParticiple)}
+                {addTenseForms(
+                  verbConjugation.contemporaryAdverbialParticiple,
+                  makeExtraInfo("contemporary adverbial participle")
+                )}
               </tr>
             )}
             {"anteriorAdverbialParticiple" in verbConjugation && (
               <tr>
                 <th colSpan="2">anterior adverbial participle</th>
-                {addTenseForms(verbConjugation.anteriorAdverbialParticiple)}
+                {addTenseForms(
+                  verbConjugation.anteriorAdverbialParticiple,
+                  makeExtraInfo("anterior adverbial participle")
+                )}
               </tr>
             )}
             {"verbalNoun" in verbConjugation && (
               <tr>
                 <th colSpan="2">verbal noun</th>
-                {addTenseForms(verbConjugation.verbalNoun)}
+                {addTenseForms(
+                  verbConjugation.verbalNoun,
+                  makeExtraInfo("verbal noun")
+                )}
               </tr>
             )}
           </tbody>

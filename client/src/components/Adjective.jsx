@@ -1,13 +1,10 @@
 import { Link } from "react-router-dom";
 
 import Definition from "./Definition";
+import { shortCaseString, formLink } from "./wordUtils";
 
 const Adjective = ({ word, meaning }) => {
   const adjectiveDeclension = meaning.adjective;
-
-  const formLink = (form) => {
-    return <Link to={`/words/${word}/${form}`}>{form}</Link>;
-  };
 
   const declensionRow = (adjCase) => {
     const singularSame =
@@ -20,18 +17,50 @@ const Adjective = ({ word, meaning }) => {
       <tr>
         <th>{adjCase}</th>
         <td colSpan={singularSame ? "2" : "1"}>
-          {formLink(adjectiveDeclension.masculineAnimate[adjCase])}
+          {formLink(
+            word,
+            adjectiveDeclension.masculineAnimate[adjCase],
+            shortCaseString(adjCase) + (singularSame ? " m" : " men")
+          )}
         </td>
         {!singularSame && (
-          <td>{formLink(adjectiveDeclension.masculineInanimate[adjCase])}</td>
+          <td>
+            {formLink(
+              word,
+              adjectiveDeclension.masculineInanimate[adjCase],
+              shortCaseString(adjCase) + " m"
+            )}
+          </td>
         )}
-        <td>{formLink(adjectiveDeclension.feminine[adjCase])}</td>
-        <td>{formLink(adjectiveDeclension.neuter[adjCase])}</td>
+        <td>
+          {formLink(
+            word,
+            adjectiveDeclension.feminine[adjCase],
+            shortCaseString(adjCase) + " f"
+          )}
+        </td>
+        <td>
+          {formLink(
+            word,
+            adjectiveDeclension.neuter[adjCase],
+            shortCaseString(adjCase) + " n"
+          )}
+        </td>
         <td colSpan={pluralSame ? "2" : "1"}>
-          {formLink(adjectiveDeclension.pluralVirile[adjCase])}
+          {formLink(
+            word,
+            adjectiveDeclension.pluralVirile[adjCase],
+            shortCaseString(adjCase) + (pluralSame ? " pl" : " pl virile")
+          )}
         </td>
         {!pluralSame && (
-          <td>{formLink(adjectiveDeclension.pluralNonvirile[adjCase])}</td>
+          <td>
+            {formLink(
+              word,
+              adjectiveDeclension.pluralNonvirile[adjCase],
+              shortCaseString(adjCase) + " pl nonvirile"
+            )}
+          </td>
         )}
       </tr>
     );

@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 
 import ExampleList from "./ExampleList";
 import NoteList from "./NoteList";
@@ -19,6 +19,9 @@ const wordsInBlank = (front, back) => {
 
 const WordForm = () => {
   const { word: word, form: form } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const extraInfo = searchParams.get("extra_info");
   const filterToForm = (n) => {
     const words = wordsInBlank(n.data.front, n.data.back);
     return words.includes(form);
@@ -29,6 +32,7 @@ const WordForm = () => {
     const wordData = {
       front: example.polish,
       back: example.polish,
+      extraInfo: extraInfo,
     };
     noteService.addNote(word, wordData);
   };
