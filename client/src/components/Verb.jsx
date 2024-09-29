@@ -32,6 +32,13 @@ const isDefective = (verbConjugation) => {
 
 const Verb = ({ word, meaning }) => {
   const verbConjugation = meaning.verb;
+  if (verbConjugation === undefined) {
+    return (
+      <>
+        <span>(definition missing conjugation)</span>
+      </>
+    );
+  }
   const makeExtraInfo = (tense) => {
     const aspect = shortAspectString(meaning.aspect);
     return aspect == "" ? tense : aspect + "; " + tense;
