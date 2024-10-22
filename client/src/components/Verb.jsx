@@ -35,6 +35,7 @@ const Verb = ({ word, meaning }) => {
   if (verbConjugation === undefined) {
     return (
       <>
+        <h2>Verb</h2>
         <span>(definition missing conjugation)</span>
       </>
     );

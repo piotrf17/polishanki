@@ -68,6 +68,10 @@ def extract_polish_pages(dump_path, output_path, allow_list):
             if allowed and title.lower() not in allowed:
                 continue
 
+            # Skip thesaurus words.
+            if title.startswith("Thesaurus:"):
+                continue
+
             try:
                 polish_text = extract_polish_text(text)
                 db[title] = polish_text
@@ -95,18 +99,16 @@ def extract_words(intermediate_dump, output_path):
     dictionary.create()
     with dbm.open(intermediate_dump) as db:
         words_and_protos = []
-        for word in db.keys():
-            # TODO(piotrf): move this to extract_polish_pages
-            if word.startswith(b"Thesaurus:"):
-                continue
+        for key in db.keys():
+            word = key.decode("utf-8")
             try:
-                proto = parse_markup(word.decode("utf-8"), db[word].decode("utf-8"))
+                proto = parse_markup(word, db[key].decode("utf-8"))
             except Exception as e:
-                print("---> word:", word.decode("utf-8"))
+                print("---> word:", word)
                 raise e
             if not proto.meanings:
                 continue
-            words_and_protos.append((word.decode("utf-8"), proto))
+            words_and_protos.append((word, proto))
         dictionary.insert_many(words_and_protos)
         print(f"Inserted {len(words_and_protos)} words into the dictionary.")
     dictionary.close()

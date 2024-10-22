@@ -85,17 +85,17 @@ def _build_parse_tree(page):
 
 
 def _parse_gender(gender):
-    if gender == "m-pr" or gender == "vr-p" or gender == "m-pr-p":
+    if gender in ["m-pr", "vr-p", "m-pr-p", "m-p"]:
         return dictionary_pb2.Meaning.kMasculinePersonal
     elif gender == "m-anml" or gender == "m-anml-p":
         return dictionary_pb2.Meaning.kMasculineAnimate
-    elif gender == "m-in" or gender == "nv-p" or gender == "m-in-p":
+    elif gender in ["m-in", "nv", "nv-p", "m-in-p", "m", "np"]:
         return dictionary_pb2.Meaning.kMasculineInanimate
-    elif gender == "f" or gender == "f-p":
+    elif gender in ["f", "f-p", "f-an", "f-in"]:
         return dictionary_pb2.Meaning.kFeminine
-    elif gender == "n":
+    elif gender in ["n", "n-p"]:
         return dictionary_pb2.Meaning.kNeuter
-    assert False, f"ERROR: unknown gender '{gender}'"
+    return dictionary_pb2.Meaning.kUnknownGender
 
 
 def _find_head(lines):
@@ -151,7 +151,6 @@ def _exec_template_lb(template):
 
 
 def _exec_template_obj(template):
-    #print(template)
     uses = []
     for arg in template.arguments[1:]:
         use = []
@@ -170,8 +169,13 @@ def _exec_template_obj(template):
                 use.append(_expand_shortcut(part))
         uses.append(" or ".join(use))
     result = f"[with {"; or with ".join(uses)}]"
-    #print(result)
     return result
+
+
+def _exec_inflection_of(template):
+    # TODO(piotrf): add the case
+    lemma = template.get_arg("2").value
+    return f"inflection of {lemma}"
 
 
 def _parse_template(raw_template):
@@ -188,6 +192,7 @@ def _parse_template(raw_template):
         "label": _exec_template_lb,
         "lb": _exec_template_lb,
         "+obj": _exec_template_obj,
+        "inflection of": _exec_inflection_of,
         "senseid": _empty_template,
     }
     if name in TEMPLATES:
@@ -242,17 +247,13 @@ def _parse_definition(line):
 
 
 def _parse_noun(word, noun):
-    if not noun.lines:
-        return None
-
     meaning = dictionary_pb2.Meaning()
     meaning.part_of_speech = dictionary_pb2.Meaning.kNoun
 
-    try:
-        head = _find_head(noun.lines)
-    except Exception as e:
-        print(word)
-        raise e
+    if not noun.lines:
+        return meaning
+
+    head = _find_head(noun.lines)
     template_re = re.compile(r"\{\{.+?\}\}")
     templates = template_re.findall(head)
 
@@ -263,7 +264,12 @@ def _parse_noun(word, noun):
 
         # Skip noun entries that are inflection forms, and not base words.
         if parsed_template.name == "head" or parsed_template.name == "head-lite":
-            return None
+            if not parsed_template.has_arg("g"):
+                continue
+            gender = parsed_template.get_arg("g").value
+            if gender:
+                meaning.gender.append(_parse_gender(gender))
+            continue
 
         if parsed_template.name != "pl-noun":
             continue
@@ -272,13 +278,9 @@ def _parse_noun(word, noun):
         for gender in genders.split(","):
             # Skip nouns that have an unattested gender, usually these are wierd.
             if gender[-1] == "!":
-                print(f"SKIPPING: noun {word} has unattested gender")
-                return None
+                print(f"WARNING: noun {word} has unattested gender")
+                return meaning
             meaning.gender.append(_parse_gender(gender))
-
-    if not meaning.gender:
-        print(f"SKIPPING: noun {word} has no gender")
-        return None
 
     # Parse out definitions.
     for line in noun.lines:
@@ -299,11 +301,11 @@ def _parse_aspect(aspect):
 
 
 def _parse_verb(word, verb):
-    if not verb.lines:
-        return None
-
     meaning = dictionary_pb2.Meaning()
     meaning.part_of_speech = dictionary_pb2.Meaning.kVerb
+
+    if not verb.lines:
+        return meaning
 
     head = _find_head(verb.lines)
     template_re = re.compile(r"\{\{.+?\}\}")
@@ -314,7 +316,7 @@ def _parse_verb(word, verb):
 
         # Skip verb entries that are conjugations, and not base words
         if head_parts[0] == "head" or head_parts[0] == "head-lite":
-            return None
+            return meaning
 
         if head_parts[0] != "pl-verb":
             continue
@@ -330,11 +332,11 @@ def _parse_verb(word, verb):
 
 
 def _parse_adjective(word, adjective):
-    if not adjective.lines:
-        return None
-
     meaning = dictionary_pb2.Meaning()
     meaning.part_of_speech = dictionary_pb2.Meaning.kAdjective
+
+    if not adjective.lines:
+        return meaning
 
     # Parse out definitions.
     for line in adjective.lines:
@@ -353,22 +355,16 @@ def parse_markup(title, page):
     nouns = parse_tree.find_all("Noun")
     for noun in nouns:
         meaning = _parse_noun(title, noun)
-        if meaning is None:
-            continue
         proto.meanings.append(meaning)
 
     verbs = parse_tree.find_all("Verb")
     for verb in verbs:
         meaning = _parse_verb(title, verb)
-        if meaning is None:
-            continue
         proto.meanings.append(meaning)
 
     adjectives = parse_tree.find_all("Adjective")
     for adjective in adjectives:
         meaning = _parse_adjective(title, adjective)
-        if meaning is None:
-            continue
         proto.meanings.append(meaning)
 
     return proto

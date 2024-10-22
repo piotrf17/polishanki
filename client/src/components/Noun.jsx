@@ -3,10 +3,9 @@ import { shortCaseString, formLink } from "./wordUtils";
 
 const Noun = ({ word, meaning }) => {
   const nounDeclension = meaning.noun;
-  const hasSingular = "singular" in nounDeclension;
-  const hasPlural = "plural" in nounDeclension;
-
   const declensionRow = (nounCase) => {
+    const hasSingular = "singular" in nounDeclension;
+    const hasPlural = "plural" in nounDeclension;
     return (
       <tr>
         <th>{nounCase}</th>
@@ -50,8 +49,8 @@ const Noun = ({ word, meaning }) => {
           <tbody>
             <tr className="header">
               <th></th>
-              {hasSingular && <th>singular</th>}
-              {hasPlural && <th>plural</th>}
+              {"singular" in nounDeclension && <th>singular</th>}
+              {"plural" in nounDeclension && <th>plural</th>}
             </tr>
             {declensionRow("nominative")}
             {declensionRow("genitive")}
