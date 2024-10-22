@@ -1,6 +1,7 @@
 import atexit
 from collections import defaultdict
 import re
+import wikitextparser as wtp
 
 from poldict import dictionary_pb2
 
@@ -84,7 +85,7 @@ def _build_parse_tree(page):
 
 
 def _parse_gender(gender):
-    if gender == "m-pr" or gender == "vr-p":
+    if gender == "m-pr" or gender == "vr-p" or gender == "m-pr-p":
         return dictionary_pb2.Meaning.kMasculinePersonal
     elif gender == "m-anml" or gender == "m-anml-p":
         return dictionary_pb2.Meaning.kMasculineAnimate
@@ -126,67 +127,60 @@ def _expand_shortcut(s):
     return s
 
 
-def _expand_shortcuts(l):
-    return [_expand_shortcut(item) for item in l]
-
-
-def _empty_template(args, named_args):
+def _empty_template(template):
     return ""
 
 
-def _exec_template_defdate(args, named_args):
-    if len(args) == 1:
-        return "[" + args[0] + "]"
+def _exec_template_defdate(template):
+    if len(template.arguments) == 1:
+        return "[" + template.arguments[0].value + "]"
     else:
-        return f"[{args[0]}–{args[1]}]"
+        return f"[{template.arguments[0].value}–{template.arguments[1].value}]"
 
 
-def _exec_template_femeq(args, named_args):
+def _exec_template_femeq(template):
     gloss = ""
-    if "t" in named_args:
-        gloss = '("' + named_args["t"] + '")'
-    return f"female equivalent of {args[1]}{gloss}"
+    if template.has_arg("t"):
+        gloss = '("' + template.get_arg("t").value + '")'
+    return f"female equivalent of {template.get_arg("2").value}{gloss}"
 
 
-def _exec_template_lb(args, named_args):
-    return "(" + ", ".join(args[1:]) + ")"
+def _exec_template_lb(template):
+    args = [arg.value for arg in template.arguments[1:]]
+    return "(" + ", ".join(args) + ")"
 
 
-def _exec_template_obj(args, named_args):
-    cases = " ".join(_expand_shortcuts(args[1:]))
-    meaning = ""
-    if "means" in named_args:
-        meaning = " = " + named_args["means"]
-    return f"[+{cases}{meaning}]"
-
-
-def _exec_template_preo(args, named_args):
-    preposition = args[1]
-    cases = "object" if len(args) == 2 else " ".join(_expand_shortcuts(args[2:]))
-    meaning = ""
-    if "means" in named_args:
-        meaning = " = " + named_args["means"]
-    return f"[+ {preposition} ({cases}){meaning}]"
-
-
-def _parse_template(template):
-    assert template.startswith("{{")
-    assert template.endswith("}}")
-
-    # Process out template args.
-    args = []
-    named_args = {}
-    parts = template[2:-2].split("|")
-    for part in parts[1:]:
-        if "=" in part:
-            key, value = part.split("=")
-            if key.isnumeric():
-                # TODO(piotrf): consider numbered args.
-                args.append(value)
+def _exec_template_obj(template):
+    #print(template)
+    uses = []
+    for arg in template.arguments[1:]:
+        use = []
+        for part in arg.value.split('/'):
+            if part[0] == ':':
+                preposition = part[1:].split('(')[0]
+                case = ''
+                if '(' in part:
+                    case = _expand_shortcut(part[1:].split('(')[1].split(')')[0])
+                    case = f" (+ {case})"
+                gloss = ''
+                if '<' in part:
+                    gloss = f" '{part.split('<')[1].split('>')[0]}'"
+                use.append(f'{preposition}{case}{gloss}')
             else:
-                named_args[key] = value
-        else:
-            args.append(part)
+                use.append(_expand_shortcut(part))
+        uses.append(" or ".join(use))
+    result = f"[with {"; or with ".join(uses)}]"
+    #print(result)
+    return result
+
+
+def _parse_template(raw_template):
+    assert raw_template.startswith("{{")
+    assert raw_template.endswith("}}")
+    parsed = wtp.parse(raw_template)
+    assert len(parsed.templates) == 1
+    template = parsed.templates[0]
+    name = template.name
 
     TEMPLATES = {
         "defdate": _exec_template_defdate,
@@ -194,32 +188,25 @@ def _parse_template(template):
         "label": _exec_template_lb,
         "lb": _exec_template_lb,
         "+obj": _exec_template_obj,
-        "+preo": _exec_template_preo,
         "senseid": _empty_template,
     }
-    if parts[0] in TEMPLATES:
-        return TEMPLATES[parts[0]](args, named_args)
+    if name in TEMPLATES:
+        return TEMPLATES[name](template)
 
-    elif parts[0] == "gl":
-        assert len(parts) > 1, parts
-        return f"({parts[1]})"
-    elif parts[0] == "verbal noun of":
-        assert len(parts) > 2, parts
-        return f"verbal noun of {parts[2]}"
-    elif parts[0] == "w":
-        assert len(parts) > 1, parts
-        return parts[1]
-    elif parts[0] == "l":
-        assert len(parts) > 2, parts
-        return parts[2]
-    elif parts[0] == "dim of" or parts[0] == "diminutive of":
-        assert len(parts) > 2, parts
-        return f"diminutive of {parts[2]}"
-    elif parts[0] == "taxfmt":
-        assert len(parts) > 1, parts
-        return parts[1]
-    unknown_templates[parts[0]] += 1
-    return template
+    elif name == "gl":
+        return f"({template.get_arg("1").value})"
+    elif name == "verbal noun of":
+        return f"verbal noun of {template.get_arg("2").value}"
+    elif name == "w":
+        return template.get_arg("1").value
+    elif name == "l":
+        return template.get_arg("2").value
+    elif name == "dim of" or name == "diminutive of":
+        return f"diminutive of {template.get_arg("2").value}"
+    elif name == "taxfmt":
+        return template.get_arg("1").value
+    unknown_templates[name] += 1
+    return raw_template
 
 
 def _parse_definition(line):
@@ -261,21 +248,28 @@ def _parse_noun(word, noun):
     meaning = dictionary_pb2.Meaning()
     meaning.part_of_speech = dictionary_pb2.Meaning.kNoun
 
-    head = _find_head(noun.lines)
+    try:
+        head = _find_head(noun.lines)
+    except Exception as e:
+        print(word)
+        raise e
     template_re = re.compile(r"\{\{.+?\}\}")
     templates = template_re.findall(head)
 
     for template in templates:
-        head_parts = template[2:-2].split("|")
+        parsed = wtp.parse(template)
+        assert len(parsed.templates) == 1
+        parsed_template = parsed.templates[0]
 
         # Skip noun entries that are inflection forms, and not base words.
-        if head_parts[0] == "head" or head_parts[0] == "head-lite":
+        if parsed_template.name == "head" or parsed_template.name == "head-lite":
             return None
 
-        if head_parts[0] != "pl-noun":
+        if parsed_template.name != "pl-noun":
             continue
 
-        for gender in head_parts[1].split(","):
+        genders = parsed_template.get_arg("1").value
+        for gender in genders.split(","):
             # Skip nouns that have an unattested gender, usually these are wierd.
             if gender[-1] == "!":
                 print(f"SKIPPING: noun {word} has unattested gender")
@@ -299,7 +293,7 @@ def _parse_aspect(aspect):
         return dictionary_pb2.Meaning.kPerfective
     elif aspect in ["impf", "impf-freq", "impf-det", "impf-indet"]:
         return dictionary_pb2.Meaning.kImperfective
-    elif aspect == "biasp":
+    elif aspect in ["biasp", "impf,pf"]:
         return dictionary_pb2.Meaning.kBiaspectual
     assert False, f"ERROR: unknown aspect '{aspect}'"
 

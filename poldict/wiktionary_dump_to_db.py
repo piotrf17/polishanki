@@ -53,7 +53,7 @@ def extract_polish_pages(dump_path, output_path, allow_list):
 
     db = dbm.open(output_path, "c")
     with bz2.open(dump_path, "rb") as f:
-        namespace_str = "http://www.mediawiki.org/xml/export-0.10/"
+        namespace_str = "http://www.mediawiki.org/xml/export-0.11/"
         namespaces = {None: namespace_str}
         page_nums = 0
         for _, page_element in etree.iterparse(f, tag=f"{{{namespace_str}}}page"):
@@ -96,7 +96,14 @@ def extract_words(intermediate_dump, output_path):
     with dbm.open(intermediate_dump) as db:
         words_and_protos = []
         for word in db.keys():
-            proto = parse_markup(word.decode("utf-8"), db[word].decode("utf-8"))
+            # TODO(piotrf): move this to extract_polish_pages
+            if word.startswith(b"Thesaurus:"):
+                continue
+            try:
+                proto = parse_markup(word.decode("utf-8"), db[word].decode("utf-8"))
+            except Exception as e:
+                print("---> word:", word.decode("utf-8"))
+                raise e
             if not proto.meanings:
                 continue
             words_and_protos.append((word.decode("utf-8"), proto))
