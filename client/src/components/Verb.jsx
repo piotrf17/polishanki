@@ -36,7 +36,15 @@ const Verb = ({ word, meaning }) => {
     return (
       <>
         <h2>Verb</h2>
-        <span>(definition missing conjugation)</span>
+        <div className="aspect">
+          <span>
+            {meaning.aspect == "kImperfective" && "imperfective"}
+            {meaning.aspect == "kPerfective" && "perfective"}
+            {meaning.aspect == "kBiaspectual" && "biaspectual"}
+          </span>
+        </div>
+        <Definition definitions={meaning.definition} />
+        <span>(no conjugation)</span>
       </>
     );
   }
