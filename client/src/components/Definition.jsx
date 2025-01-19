@@ -1,4 +1,11 @@
 const Definition = ({ definitions }) => {
+  if (typeof definitions === "undefined") {
+    return (
+      <div>
+        <p>(no definition)</p>
+      </div>
+    );
+  }
   return (
     <div>
       <ol>

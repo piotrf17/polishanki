@@ -31,6 +31,9 @@ const Word = ({ setErrorMessage }) => {
       <a href={"https://en.wiktionary.org/wiki/" + word + "#Polish"}>
         [wiktionary]
       </a>
+      <a href={"https://pl.wiktionary.org/wiki/" + word + "#Polish"}>
+        [wiktionary-pl]
+      </a>
       {wordData && (
         <div>
           {wordData.meanings.map((meaning, index) => (
