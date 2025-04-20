@@ -1,7 +1,6 @@
 import sqlite3
 
-from reverso_context_api import Client
-
+from examples import reverso_api
 from examples import reverso_pb2
 
 SCHEMA = """
@@ -49,15 +48,12 @@ class ReversoDb(object):
 
         # Scrape the next page in reverso.
         examples.latest_scraped_page += 1
-        client = Client("pl", "en")
-        r = client._request_translations(
-            word, "pl", "en", None, examples.latest_scraped_page
-        )
-        for example_json in r.json()["list"]:
+        results = reverso_api.request_translations(word, examples.latest_scraped_page)
+        for result in results:
             example = reverso_pb2.Example()
-            example.polish = client._cleanup_html_tags(example_json["s_text"])
-            example.english = client._cleanup_html_tags(example_json["t_text"])
-            example.source = example_json["cname"]
+            example.polish = result["polish"]
+            example.english = result["english"]
+            example.source = result["source"]
             examples.examples.append(example)
 
         # Save the examples back into the database.

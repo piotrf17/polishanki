@@ -14,7 +14,6 @@ lxml==5.2.1
 MarkupSafe==2.1.5
 protobuf==5.26.1
 requests==2.31.0
-reverso_context_api==0.5
 soupsieve==2.5
 urllib3==2.2.1
 Werkzeug==3.0.3
