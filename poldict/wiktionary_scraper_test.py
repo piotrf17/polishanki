@@ -1,3 +1,5 @@
+# python -m unittest poldict/wiktionary_scraper_test.py
+
 import os.path
 import unittest
 
@@ -24,7 +26,7 @@ class TestWiktionaryScraper(unittest.TestCase):
 
     def test_noun(self):
         word = get_forms("gość")
-        self.assertEqual(len(word.meanings), 1)
+        self.assertEqual(len(word.meanings), 2)
         m = word.meanings[0]
         self.assertEqual(m.WhichOneof("inflection"), "noun")
         self._check_cases(

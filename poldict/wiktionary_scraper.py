@@ -220,6 +220,8 @@ def _parse_verb_inflection_table(table, verb_declension):
     current_tense = None
 
     for row in rows:
+        if row.th is None:
+            continue
         if not "title" in row.th.attrs:
             continue
 
@@ -348,4 +350,4 @@ def get_forms(word):
 
 
 if __name__ == "__main__":
-    print(get_forms("biegać"))
+    print(get_forms("gość"))

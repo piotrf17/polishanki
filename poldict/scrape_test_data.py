@@ -1,3 +1,5 @@
+# python3 -m poldict.scrape_test_data --rescrape_all
+
 import os.path
 import sys
 
