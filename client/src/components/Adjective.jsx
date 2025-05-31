@@ -1,70 +1,14 @@
 import { Link } from "react-router-dom";
 
 import Definition from "./Definition";
-import { shortCaseString, formLink } from "./wordUtils";
+import { adjectiveDeclensionRow } from "./wordUtils";
 
 const Adjective = ({ word, meaning }) => {
-  const adjectiveDeclension = meaning.adjective;
-
-  const declensionRow = (adjCase) => {
-    const singularSame =
-      adjectiveDeclension.masculineAnimate[adjCase] ==
-      adjectiveDeclension.masculineInanimate[adjCase];
-    const pluralSame =
-      adjectiveDeclension.pluralVirile[adjCase] ==
-      adjectiveDeclension.pluralNonvirile[adjCase];
-    return (
-      <tr>
-        <th>{adjCase}</th>
-        <td colSpan={singularSame ? "2" : "1"}>
-          {formLink(
-            word,
-            adjectiveDeclension.masculineAnimate[adjCase],
-            shortCaseString(adjCase) + (singularSame ? " m" : " men")
-          )}
-        </td>
-        {!singularSame && (
-          <td>
-            {formLink(
-              word,
-              adjectiveDeclension.masculineInanimate[adjCase],
-              shortCaseString(adjCase) + " m"
-            )}
-          </td>
-        )}
-        <td>
-          {formLink(
-            word,
-            adjectiveDeclension.feminine[adjCase],
-            shortCaseString(adjCase) + " f"
-          )}
-        </td>
-        <td>
-          {formLink(
-            word,
-            adjectiveDeclension.neuter[adjCase],
-            shortCaseString(adjCase) + " n"
-          )}
-        </td>
-        <td colSpan={pluralSame ? "2" : "1"}>
-          {formLink(
-            word,
-            adjectiveDeclension.pluralVirile[adjCase],
-            shortCaseString(adjCase) + (pluralSame ? " pl" : " pl virile")
-          )}
-        </td>
-        {!pluralSame && (
-          <td>
-            {formLink(
-              word,
-              adjectiveDeclension.pluralNonvirile[adjCase],
-              shortCaseString(adjCase) + " pl nonvirile"
-            )}
-          </td>
-        )}
-      </tr>
-    );
-  };
+  const declensionRow = adjectiveDeclensionRow.bind(
+    null,
+    word,
+    meaning.adjective
+  );
 
   return (
     <>

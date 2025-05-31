@@ -6,6 +6,7 @@ import Adjective from "./Adjective";
 import NoteList from "./NoteList";
 import NoteService from "../services/notes";
 import Noun from "./Noun";
+import Pronoun from "./Pronoun";
 import Verb from "./Verb";
 
 const Word = ({ setErrorMessage }) => {
@@ -46,6 +47,9 @@ const Word = ({ setErrorMessage }) => {
               )}
               {meaning.partOfSpeech == "kAdjective" && (
                 <Adjective word={word} meaning={meaning} />
+              )}
+              {meaning.partOfSpeech == "kPronoun" && (
+                <Pronoun word={word} meaning={meaning} />
               )}
             </div>
           ))}

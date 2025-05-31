@@ -1,36 +1,8 @@
 import Definition from "./Definition";
-import { shortCaseString, formLink } from "./wordUtils";
+import { nounDeclensionRow } from "./wordUtils";
 
 const Noun = ({ word, meaning }) => {
-  const nounDeclension = meaning.noun;
-  const declensionRow = (nounCase) => {
-    const hasSingular = "singular" in nounDeclension;
-    const hasPlural = "plural" in nounDeclension;
-    return (
-      <tr>
-        <th>{nounCase}</th>
-        {hasSingular && (
-          <td>
-            {formLink(
-              word,
-              nounDeclension.singular[nounCase],
-              shortCaseString(nounCase)
-            )}
-          </td>
-        )}
-        {hasPlural && (
-          <td>
-            {formLink(
-              word,
-              nounDeclension.plural[nounCase],
-              shortCaseString(nounCase) + " pl"
-            )}
-          </td>
-        )}
-      </tr>
-    );
-  };
-
+  const declensionRow = nounDeclensionRow.bind(null, word, meaning.noun);
   return (
     <>
       <h2>Noun</h2>
@@ -49,8 +21,8 @@ const Noun = ({ word, meaning }) => {
           <tbody>
             <tr className="header">
               <th></th>
-              {"singular" in nounDeclension && <th>singular</th>}
-              {"plural" in nounDeclension && <th>plural</th>}
+              {"singular" in meaning.noun && <th>singular</th>}
+              {"plural" in meaning.noun && <th>plural</th>}
             </tr>
             {declensionRow("nominative")}
             {declensionRow("genitive")}

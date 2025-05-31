@@ -34,3 +34,91 @@ export const formLink = (word, form, extraInfo) => {
     </>
   );
 };
+
+export const nounDeclensionRow = (word, nounDeclension, nounCase) => {
+  const hasSingular = "singular" in nounDeclension;
+  const hasPlural = "plural" in nounDeclension;
+  return (
+    <tr>
+      <th>{nounCase}</th>
+      {hasSingular && (
+        <td>
+          {formLink(
+            word,
+            nounDeclension.singular[nounCase],
+            shortCaseString(nounCase)
+          )}
+        </td>
+      )}
+      {hasPlural && (
+        <td>
+          {formLink(
+            word,
+            nounDeclension.plural[nounCase],
+            shortCaseString(nounCase) + " pl"
+          )}
+        </td>
+      )}
+    </tr>
+  );
+};
+
+export const adjectiveDeclensionRow = (word, adjectiveDeclension, adjCase) => {
+  const singularSame =
+    adjectiveDeclension.masculineAnimate[adjCase] ==
+    adjectiveDeclension.masculineInanimate[adjCase];
+  const pluralSame =
+    adjectiveDeclension.pluralVirile[adjCase] ==
+    adjectiveDeclension.pluralNonvirile[adjCase];
+  return (
+    <tr>
+      <th>{adjCase}</th>
+      <td colSpan={singularSame ? "2" : "1"}>
+        {formLink(
+          word,
+          adjectiveDeclension.masculineAnimate[adjCase],
+          shortCaseString(adjCase) + (singularSame ? " m" : " men")
+        )}
+      </td>
+      {!singularSame && (
+        <td>
+          {formLink(
+            word,
+            adjectiveDeclension.masculineInanimate[adjCase],
+            shortCaseString(adjCase) + " m"
+          )}
+        </td>
+      )}
+      <td>
+        {formLink(
+          word,
+          adjectiveDeclension.feminine[adjCase],
+          shortCaseString(adjCase) + " f"
+        )}
+      </td>
+      <td>
+        {formLink(
+          word,
+          adjectiveDeclension.neuter[adjCase],
+          shortCaseString(adjCase) + " n"
+        )}
+      </td>
+      <td colSpan={pluralSame ? "2" : "1"}>
+        {formLink(
+          word,
+          adjectiveDeclension.pluralVirile[adjCase],
+          shortCaseString(adjCase) + (pluralSame ? " pl" : " pl virile")
+        )}
+      </td>
+      {!pluralSame && (
+        <td>
+          {formLink(
+            word,
+            adjectiveDeclension.pluralNonvirile[adjCase],
+            shortCaseString(adjCase) + " pl nonvirile"
+          )}
+        </td>
+      )}
+    </tr>
+  );
+};
