@@ -57,6 +57,7 @@ message Meaning {
     kNoun = 1;
     kAdjective = 2;
     kVerb = 3;
+    kPronoun = 4;
   }
   optional PartOfSpeech part_of_speech = 2;
 

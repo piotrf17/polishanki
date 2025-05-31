@@ -93,6 +93,98 @@ class TestWiktionaryScraper(unittest.TestCase):
             ["domy", "domów", "domom", "domy", "domami", "domach", "domy"],
         )
 
+    def test_pronoun_like_noun(self):
+        word = get_forms("ja")
+        self.assertEqual(len(word.meanings), 1)
+        m = word.meanings[0]
+        self.assertEqual(m.WhichOneof("inflection"), "noun")
+        self._check_cases(
+            m.noun.singular,
+            ["ja", "mnie / mię", "mnie / mi", "mnie / mię", "mną", "mnie", "-"],
+        )
+        self._check_cases(
+            m.noun.plural,
+            ["my", "nas", "nam", "nas", "nami", "nas", "-"],
+        )
+
+    def test_pronoun_like_adjective(self):
+        word = get_forms("który")
+        self.assertEqual(len(word.meanings), 1)
+        m = word.meanings[0]
+        self.assertEqual(m.WhichOneof("inflection"), "adjective")
+        self._check_cases(
+            m.adjective.masculine_animate,
+            [
+                "który",
+                "którego",
+                "któremu",
+                "którego",
+                "którym",
+                "którym",
+                "",
+            ],
+        )
+        self._check_cases(
+            m.adjective.masculine_inanimate,
+            [
+                "który",
+                "którego",
+                "któremu",
+                "który",
+                "którym",
+                "którym",
+                "",
+            ],
+        )
+        self._check_cases(
+            m.adjective.feminine,
+            [
+                "która",
+                "której",
+                "której",
+                "którą",
+                "którą",
+                "której",
+                "",
+            ],
+        )
+        self._check_cases(
+            m.adjective.neuter,
+            [
+                "które",
+                "którego",
+                "któremu",
+                "które",
+                "którym",
+                "którym",
+                "",
+            ],
+        )
+        self._check_cases(
+            m.adjective.plural_virile,
+            [
+                "którzy",
+                "których",
+                "którym",
+                "których",
+                "którymi",
+                "których",
+                "",
+            ],
+        )
+        self._check_cases(
+            m.adjective.plural_nonvirile,
+            [
+                "które",
+                "których",
+                "którym",
+                "które",
+                "którymi",
+                "których",
+                "",
+            ],
+        )
+
     def test_imperfect_verb(self):
         word = get_forms("biegać")
         self.assertEqual(len(word.meanings), 1)

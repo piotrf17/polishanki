@@ -161,6 +161,9 @@ def _add_cases_form(form, text, proto):
 
 
 def _span_to_text(span):
+    # In rare cases, this form may be missing.
+    if span is None:
+        return "-"
     form = []
     for child in span.descendants:
         if type(child) == NavigableString:
@@ -200,6 +203,14 @@ def _parse_noun_inflection_table(table, noun_declension):
                 _add_cases_form(form, _span_to_text(texts[1].span), plural)
         elif plural:
             _add_cases_form(form, _span_to_text(texts[0]), plural)
+
+
+def _is_noun_inflection_table(table):
+    rows = table.find_all("tr")
+    if not rows:
+        raise KeyError("declension table empty")
+    headers = rows[1].find_all("th")
+    return len(headers) < 3
 
 
 def _parse_verb_person_forms(row, person):
@@ -307,6 +318,20 @@ def get_forms_from_html(word, html):
         _parse_noun_inflection_table(inflection_table, meaning.noun)
         proto.meanings.append(meaning)
 
+    pronouns = parse_tree.find_all("Pronoun")
+    for pronoun in pronouns:
+        meaning = dictionary_pb2.Meaning()
+        meaning.part_of_speech = dictionary_pb2.Meaning.kPronoun
+        declension = pronoun.find("Declension")
+        if declension is not None:
+            inflection_table = declension.find_tag("table", "inflection-table")
+            assert inflection_table is not None
+            if _is_noun_inflection_table(inflection_table):
+                _parse_noun_inflection_table(inflection_table, meaning.noun)
+            else:
+                _parse_adjective_inflection_table(inflection_table, meaning.adjective)
+        proto.meanings.append(meaning)
+
     verbs = parse_tree.find_all("Verb")
     for verb in verbs:
         meaning = dictionary_pb2.Meaning()
@@ -350,4 +375,4 @@ def get_forms(word):
 
 
 if __name__ == "__main__":
-    print(get_forms("gość"))
+    print(get_forms("który"))

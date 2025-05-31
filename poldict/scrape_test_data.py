@@ -12,7 +12,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean("rescrape_all", False, "If true, rescrape all test cases")
 flags.DEFINE_list(
     "words",
-    ["biegać", "człowiek", "czerwony", "dom", "drzwi", "gość", "pobiec"],
+    ["biegać", "człowiek", "czerwony", "dom", "drzwi", "gość", "pobiec", "ja", "który"],
     "Words to scrape",
 )
 

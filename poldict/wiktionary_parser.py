@@ -154,17 +154,17 @@ def _exec_template_obj(template):
     uses = []
     for arg in template.arguments[1:]:
         use = []
-        for part in arg.value.split('/'):
-            if part[0] == ':':
-                preposition = part[1:].split('(')[0]
-                case = ''
-                if '(' in part:
-                    case = _expand_shortcut(part[1:].split('(')[1].split(')')[0])
+        for part in arg.value.split("/"):
+            if part[0] == ":":
+                preposition = part[1:].split("(")[0]
+                case = ""
+                if "(" in part:
+                    case = _expand_shortcut(part[1:].split("(")[1].split(")")[0])
                     case = f" (+ {case})"
-                gloss = ''
-                if '<' in part:
+                gloss = ""
+                if "<" in part:
                     gloss = f" '{part.split('<')[1].split('>')[0]}'"
-                use.append(f'{preposition}{case}{gloss}')
+                use.append(f"{preposition}{case}{gloss}")
             else:
                 use.append(_expand_shortcut(part))
         uses.append(" or ".join(use))
@@ -197,7 +197,8 @@ def _parse_template(raw_template):
     }
     if name in TEMPLATES:
         return TEMPLATES[name](template)
-
+    elif name in ["ng", "n-g", "ngd"]:
+        return f"({template.get_arg("1").value})"
     elif name == "gl":
         return f"({template.get_arg("1").value})"
     elif name == "verbal noun of":
@@ -290,6 +291,21 @@ def _parse_noun(word, noun):
     return meaning
 
 
+def _parse_pronoun(word, pronoun):
+    meaning = dictionary_pb2.Meaning()
+    meaning.part_of_speech = dictionary_pb2.Meaning.kPronoun
+
+    if not pronoun.lines:
+        return meaning
+
+    # Parse out definitions.
+    for line in pronoun.lines:
+        if line.startswith("# "):
+            meaning.definition.append(_parse_definition(line))
+
+    return meaning
+
+
 def _parse_aspect(aspect):
     if aspect == "pf":
         return dictionary_pb2.Meaning.kPerfective
@@ -355,6 +371,11 @@ def parse_markup(title, page):
     nouns = parse_tree.find_all("Noun")
     for noun in nouns:
         meaning = _parse_noun(title, noun)
+        proto.meanings.append(meaning)
+
+    pronouns = parse_tree.find_all("Pronoun")
+    for pronoun in pronouns:
+        meaning = _parse_pronoun(title, pronoun)
         proto.meanings.append(meaning)
 
     verbs = parse_tree.find_all("Verb")
