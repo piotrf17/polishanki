@@ -20,6 +20,9 @@ export const shortCaseString = (nounCase) => {
 };
 
 export const formLink = (word, form, extraInfo) => {
+  if (form === undefined) {
+    return <span>-</span>;
+  }
   const forms = form.split("/").map((form) => form.trim());
   const query = extraInfo ? `?extra_info=${encodeURIComponent(extraInfo)}` : "";
   const url = `/words/${word}/${form}` + query;
@@ -68,8 +71,9 @@ export const adjectiveDeclensionRow = (word, adjectiveDeclension, adjCase) => {
     adjectiveDeclension.masculineAnimate[adjCase] ==
     adjectiveDeclension.masculineInanimate[adjCase];
   const pluralSame =
+    !("pluralNonvirile" in adjectiveDeclension) ||
     adjectiveDeclension.pluralVirile[adjCase] ==
-    adjectiveDeclension.pluralNonvirile[adjCase];
+      adjectiveDeclension.pluralNonvirile[adjCase];
   return (
     <tr>
       <th>{adjCase}</th>
