@@ -18,6 +18,7 @@ const WordList = () => {
   const [matchNouns, setMatchNouns] = useState(true);
   const [matchVerbs, setMatchVerbs] = useState(true);
   const [matchAdjectives, setMatchAdjectives] = useState(true);
+  const [matchNotes, setMatchNotes] = useState(false);
   const WORDS_PER_PAGE = 100;
   const navigate = useNavigate();
 
@@ -44,6 +45,11 @@ const WordList = () => {
   const matchingWords = allWords.filter((wordData) => {
     // First, match on parts of speech.
     if (!matchesPosFilter(wordData)) {
+      return false;
+    }
+
+    // Next, match on whether it has notes.
+    if (matchNotes && wordData.note_count == 0) {
       return false;
     }
 
@@ -110,8 +116,17 @@ const WordList = () => {
             }}
           />{" "}
           Adjectives
+          <input
+            type="checkbox"
+            defaultChecked={matchNotes}
+            onChange={(e) => {
+              setMatchNotes(e.target.checked);
+            }}
+          />{" "}
+          Notes
         </span>
       </div>
+      setMatchAdjectives
       <div>
         {currentPage > 1 && (
           <Link to={getUrl(currentPage - 1, query)}>prev</Link>
@@ -124,6 +139,8 @@ const WordList = () => {
         {currentPage < numPages && (
           <Link to={getUrl(currentPage + 1, query)}>next</Link>
         )}
+        &nbsp; &nbsp;
+        <span>({matchingWords.length} words)</span>
       </div>
       <div>
         <span>Search: </span>
